@@ -6,59 +6,60 @@ import json
 from tensorboardX import SummaryWriter
 from scripts.utils.evaluation import accuracy, AverageMeter, final_preds
 from scripts.utils.osutils import mkdir_p, isfile, isdir, join
+from scripts.utils.imutils import image_gradient
 import scripts.utils.pytorch_ssim as pytorch_ssim
 import torch.optim
 import time
 import scripts.models as archs
 from math import log10
 
+
+
 class BasicMachine(object):
-    def __init__(self, datasets = None, models = None, args = None, **kwargs):
-
+    def __init__(self, datasets =(None,None), models = None, args = None, **kwargs):
+        super(BasicMachine, self).__init__()
+        
         self.args = args
-        self.title = '_'+args.machine + '_' + args.data + '_' + args.arch
-        self.args.checkpoint = args.checkpoint + self.title
-
-            # create model
+        
+        # create model
         print("==> creating model ")
         self.model = archs.__dict__[self.args.arch]()
         print("==> creating model [Finish]")
-        # create checkpoint dir
-        if not isdir(self.args.checkpoint):
-            mkdir_p(self.args.checkpoint)
-
-        super(BasicMachine, self).__init__()
+       
         self.train_loader,self.val_loader = datasets
-        # two losses in MaskedRASC, the first is the reconstruction loss, the second is the attentionLoss
         self.loss = torch.nn.MSELoss()
-        self.optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.model.parameters()), 
+        
+        if not args.val:
+            self.title = '_'+args.machine + '_' + args.data + '_' + args.arch
+            self.args.checkpoint = args.checkpoint + self.title
+             # create checkpoint dir
+            if not isdir(self.args.checkpoint):
+                mkdir_p(self.args.checkpoint)
+
+            self.optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.model.parameters()), 
                                 lr=args.lr,
                                 betas=(0.9,0.999),
                                 weight_decay=args.weight_decay)         
-        self.writer = SummaryWriter(self.args.checkpoint+'/'+'ckpt')
-        self.best_acc = 0
-        self.is_best = False
-        self.current_epoch = 0
+            self.writer = SummaryWriter(self.args.checkpoint+'/'+'ckpt')
+            
+            self.best_acc = 0
+            self.is_best = False
+            self.current_epoch = 0
+            self.metric = -100000
 
-        if self.args.gpu:    
-            self.model.cuda()
-            self.loss.cuda()
+            if self.args.gradient_loss:
+                self.gradient_loss_x = torch.nn.MSELoss()
+                self.gradient_loss_y = torch.nn.MSELoss()
+                if self.args.gpu:  
+                    self.gradient_loss_x.cuda()
+                    self.gradient_loss_y.cuda()
 
-        if args.resume:
-            if isfile(args.resume):
-                print("=> loading checkpoint '{}'".format(args.resume))
-                current_checkpoint = torch.load(args.resume)
-                self.args.start_epoch = current_checkpoint['epoch']
-                self.best_acc = current_checkpoint['best_acc']
-                self.model.load_state_dict(current_checkpoint['state_dict'])
-                self.optimizer.load_state_dict(checkpoint['optimizer'])
-                print("=> loaded checkpoint '{}' (epoch {})"
-                      .format(args.resume, checkpoint['epoch']))
-            else:
-                print("=> no checkpoint found at '{}'".format(args.resume))
-        else:
-            with open(args.checkpoint+'/config.txt','w') as f:
-                    json.dump(args.__dict__, f, indent=2)
+            if self.args.gpu:    
+                self.model.cuda()
+                self.loss.cuda()
+
+            if args.resume:
+                self.resume(args.resuse)
 
         print('==> Total params: %.2fM' % (sum(p.numel() for p in self.model.parameters())/1000000.0))
 
@@ -67,7 +68,8 @@ class BasicMachine(object):
         batch_time = AverageMeter()
         data_time = AverageMeter()
         losses = AverageMeter()
-
+        gradientes = AverageMeter()
+        
         # switch to train mode
         self.model.train()
 
@@ -81,9 +83,9 @@ class BasicMachine(object):
             if self.args.gpu:
                 inputs = inputs.cuda()
                 mask = inputs[:,3:4,:,:].cuda()
-                target = target[0].cuda()
+                target = target.cuda()
             else:
-                target = target[0]
+                target = target
                 mask = inputs[:,3:4,:,:]
             
             output = self.model(inputs)
@@ -95,8 +97,16 @@ class BasicMachine(object):
                 self.writer.add_images('train/input',inputs[:,0:3,:,:],current_index)
                 self.writer.add_images('train/mask',mask.repeat(1,3,1,1),current_index)
 
-            L2_loss = 1e10 * self.loss(output,target)
-            total_loss = L2_loss 
+            L2_loss =  self.loss(output,target)
+            
+            if self.args.gradient_loss:
+                tgx,tgy = image_gradient(inputs[:,0:3,:,:])
+                ogx,ogy = image_gradient(output)
+                gradient_loss = self.gradient_loss_y(ogy, tgy) + self.gradient_loss_x(ogx, tgx)
+            else:
+                gradient_loss = 0
+
+            total_loss = 1e10 * L2_loss + 1e9 * gradient_loss
 
             # compute gradient and do SGD step
             self.optimizer.zero_grad()
@@ -104,7 +114,10 @@ class BasicMachine(object):
             self.optimizer.step()
 
             # measure accuracy and record loss
-            losses.update(L2_loss.item(), inputs.size(0))
+            losses.update(1e10 *L2_loss.item(), inputs.size(0))
+            
+            if self.args.gradient_loss:
+                gradientes.update(1e9 *gradient_loss.item(),inputs.size(0))
 
                # measure elapsed time
             batch_time.update(time.time() - end)
@@ -123,6 +136,7 @@ class BasicMachine(object):
             bar.next()
         bar.finish()
         self.writer.add_scalar('train/loss_L2', losses.avg, epoch)
+        self.writer.add_scalar('train/loss_gradient', gradientes.avg, epoch)
 
 
     def validate(self, epoch):
@@ -143,7 +157,7 @@ class BasicMachine(object):
                 # measure data loading time
                 if self.args.gpu:
                     inputs = inputs.cuda() # image and bbox
-                    target = target[0].cuda()
+                    target = target.cuda()
 
                 output = self.model(inputs)
                 mse = self.loss(output, target)
@@ -178,6 +192,45 @@ class BasicMachine(object):
         self.writer.add_scalar('val/loss_L2', losses.avg, epoch)
         self.writer.add_scalar('val/PSNR', psnres.avg, epoch)
         self.writer.add_scalar('val/SSIM', ssimes.avg, epoch)
+        self.metric = psnres.avg
+        
+        
+    def resume(self,resume_path):
+        if isfile(resume_path):
+                print("=> loading checkpoint '{}'".format(resume_path))
+                current_checkpoint = torch.load(resume_path)
+                self.args.start_epoch = current_checkpoint['epoch']
+                self.metric = current_checkpoint['best_acc']
+                self.model.load_state_dict(current_checkpoint['state_dict'])
+#                 self.optimizer.load_state_dict(checkpoint['optimizer'])
+                print("=> loaded checkpoint '{}' (epoch {})"
+                      .format(resume_path, current_checkpoint['epoch']))
+        else:
+            raise Exception("=> no checkpoint found at '{}'".format(resume_path))
+            
+            
+    def test(self,data_loader):
+       
+        # switch to evaluate mode
+        self.model.eval()
+        
+        # generate the tensor from the input.
+        
+        output = []
+           
+        with torch.no_grad():
+            for i, (ips, tgt) in enumerate(data_loader):
+
+                if self.args.gpu:
+                    ips = ips.cuda() # image and bbox
+                    tgt = tgt.cuda()
+
+                o = self.model(ips)
+                
+                output.append((ips[0],o[0],tgt[0]))
+                    
+                
+        return output
 
     def clean(self):
         self.writer.close()

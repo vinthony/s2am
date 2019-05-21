@@ -9,10 +9,14 @@ import math
 
 from guided_filter_pytorch.guided_filter import FastGuidedFilter
 from scripts.utils.model_init import *
-from scripts.models.vgg import Vgg16
 from scripts.models.blocks import *
 
+class UNO(nn.Module):
+    def __init__(self,channel):
+        super(UNO, self).__init__()
 
+    def forward(self,feature,_m):
+        return feature 
 
 class SENet(nn.Module):
     """docstring for SENet"""

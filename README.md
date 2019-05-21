@@ -44,7 +44,7 @@ run the watching commond as :
 tensorboard --logdir ./checkpoint
 ```
 ## Demo
-Download the pre-trained model from our synthesied datasets and run the nootbook in `notebook/vis.ipynb`
+Download the pre-trained model from our synthesied datasets and run the nootbook in `notebook/visualize.ipynb`
 
 ## the Application of Spatial-Separated Attention Module (S²AM) without mask
 

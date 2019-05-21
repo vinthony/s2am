@@ -27,7 +27,9 @@ def to_torch(ndarray):
 
 
 def save_checkpoint(machine,filename='checkpoint.pth.tar', snapshot=None):
-    # preds = to_numpy(preds)
+    is_best = machine.best_acc < machine.metric
+    machine.best_acc = machine.metric
+
     state = {
                 'epoch': machine.current_epoch + 1,
                 'arch': machine.args.arch,
@@ -42,10 +44,9 @@ def save_checkpoint(machine,filename='checkpoint.pth.tar', snapshot=None):
     if snapshot and state['epoch'] % snapshot == 0:
         shutil.copyfile(filepath, os.path.join(machine.args.checkpoint, 'checkpoint_{}.pth.tar'.format(state.epoch)))
        
-    if machine.is_best:
+    if is_best:
         shutil.copyfile(filepath, os.path.join(machine.args.checkpoint, 'model_best.pth.tar'))
         
-
 
 def save_pred(preds, checkpoint='checkpoint', filename='preds_valid.mat'):
     preds = to_numpy(preds)

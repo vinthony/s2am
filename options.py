@@ -17,6 +17,12 @@ class Options():
                             help='model architecture: ' +
                                 ' | '.join(model_names) +
                                 ' (default: resnet18)')
+
+        parser.add_argument('--darch', '-w', metavar='ARCH', default='patchgan',
+                        choices=model_names,
+                        help='model architecture: ' +
+                            ' | '.join(model_names) +
+                            ' (default: resnet18)')
         
         parser.add_argument('--machine', '-m', metavar='NACHINE', default='basic')
         # Training strategy
@@ -55,7 +61,8 @@ class Options():
         # Miscs
         parser.add_argument('--base-dir', default='/home/mb55411/dataset/splicing/NC2016_Test/', type=str, metavar='PATH',help='path to save checkpoint (default: checkpoint)')
         parser.add_argument('--ground-truth-dir', default='/home/mb55411/dataset/splicing/NC2016_Test/', type=str, metavar='PATH',help='path to save checkpoint (default: checkpoint)')
-        parser.add_argument('--data', default='dataX', type=str, metavar='PATH',
+        parser.add_argument('--mask-path', default='/home/mb55411/dataset/splicing/NC2016_Test/', type=str, metavar='PATH',help='path to save checkpoint (default: checkpoint)')
+        parser.add_argument('--data', default='train', type=str, metavar='PATH',
                             help='path to save checkpoint (default: checkpoint)')
         parser.add_argument('-c', '--checkpoint', default='checkpoint', type=str, metavar='PATH',
                             help='path to save checkpoint (default: checkpoint)')
@@ -66,21 +73,32 @@ class Options():
 
         parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                             help='evaluate model on validation set')
-        parser.add_argument('-sl', '--style-loss', default=0, type=float,
+        parser.add_argument('--attention-loss-weight', default=1e10, type=float,
                             help='preception loss')
+        parser.add_argument('--loss-pixel', default=100, type=float,
+                            help='preception loss')
+        parser.add_argument('--loss-attention', default=100, type=float,
+                            help='preception loss')
+        parser.add_argument('--resize-and-crop', default='resize',
+                            help='Labelmap dist type: (default=Gaussian)')
         parser.add_argument('-da', '--data-augumentation', default=False, type=bool,
                             help='preception loss')
         parser.add_argument('-d', '--debug', dest='debug', action='store_true',
                             help='show intermediate results')
         parser.add_argument('--input-size', default=512, type=int, metavar='N',
                             help='train batchsize')
-        parser.add_argument('--normalized-input', default=False, type=bool,
-                            help='train batchsize')
         parser.add_argument('--requires-grad', default=False, type=bool,
                             help='train batchsize')
         parser.add_argument('--limited-dataset', default=0, type=int, metavar='N')
         parser.add_argument('--gpu',default=True,type=bool)
+        parser.add_argument('--comparegan',default=False,type=bool)
+        parser.add_argument('--multicomapre',default=False,type=bool)
+        parser.add_argument('--freeze',default=False,type=bool)
         parser.add_argument('--semi',default=False,type=bool)
-        parser.add_argument('--withseg', default=False,type=bool, help='train batchsize')
-        parser.add_argument('--mask-loss-type', default='pixelwise',type=bool, help='train batchsize')
+        parser.add_argument('--gradient-loss',default=False,type=bool)
+        parser.add_argument('--task', default='harmonization',type=str, help='train batchsize')
+        parser.add_argument('--mask-loss-type', default='pixelwise',type=str, help='train batchsize')
+        parser.add_argument('--norm-type', default='none',type=str, help='train batchsize')
+        parser.add_argument('--random-mask', default=False,type=bool)
+        parser.add_argument('--val', default=False,type=bool)
         return parser

@@ -2,9 +2,10 @@ from __future__ import absolute_import
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import numpy as np
 import scipy.misc
-
+from matplotlib import cm
 from .misc import *
 
 def im_to_numpy(img):
@@ -207,3 +208,49 @@ def show_image_tensor(tensor):
         re.append(torch.from_numpy(inp).unsqueeze(0))
     return torch.cat(re,0)
 
+def image_gradient(x):
+    a = torch.Tensor([[1, 0, -1],
+    [2, 0, -2],
+    [1, 0, -1]]).cuda()
+
+    a = a.view((1,1,3,3)).repeat(1,3,1,1)
+    G_x = F.conv2d(x, a)
+
+    b = torch.Tensor([[1, 2, 1],
+    [0, 0, 0],
+    [-1, -2, -1]]).cuda()
+
+    b = b.view((1,1,3,3)).repeat(1,3,1,1)
+    G_y = F.conv2d(x, b)
+
+    G = torch.sqrt(torch.pow(G_x,2)+ torch.pow(G_y,2))
+    
+    return G_x,G_y
+
+
+
+def get_jet():
+    colormap_int = np.zeros((256, 3), np.uint8)
+ 
+    for i in range(0, 256, 1):
+        colormap_int[i, 0] = np.int_(np.round(cm.jet(i)[0] * 255.0))
+        colormap_int[i, 1] = np.int_(np.round(cm.jet(i)[1] * 255.0))
+        colormap_int[i, 2] = np.int_(np.round(cm.jet(i)[2] * 255.0))
+
+    return colormap_int
+
+
+def clamp(num, min_value, max_value):
+    return max(min(num, max_value), min_value)
+
+def gray2color(gray_array, color_map):
+    
+    rows, cols = gray_array.shape
+    color_array = np.zeros((rows, cols, 3), np.uint8)
+ 
+    for i in range(0, rows):
+        for j in range(0, cols):
+#             log(256,2) = 8 , log(1,2) = 0 * 8
+            color_array[i, j] = color_map[clamp(int(abs(gray_array[i, j])*10),0,255)]
+    
+    return color_array

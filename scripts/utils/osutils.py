@@ -18,3 +18,8 @@ def isdir(dirname):
 
 def join(path, *paths):
     return os.path.join(path, *paths)
+
+class objectview(object):
+    def __init__(self, *args, **kwargs):
+        d = dict(*args, **kwargs)
+        self.__dict__ = d

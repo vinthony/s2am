@@ -1,4 +1,5 @@
 from .COCO import COCO
-from .semiCOCO import semiCOCO
 
-__all__ = ('COCO','semiCOCO')
+
+
+__all__ = ('COCO')

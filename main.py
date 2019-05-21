@@ -13,20 +13,25 @@ def main(args):
 
     DataLoader = datasets.COCO
 
-    if args.semi:
-        DataLoader = datasets.semiCOCO
+    if 'mmu' in args.arch:
+        DataLoader = datasets.COCOv2
 
-    train_loader = torch.utils.data.DataLoader(datasets.COCO('train',args),batch_size=args.train_batch, shuffle=True,
+    if args.task == 'inpainting':
+        DataLoader = datasets.Inpainting
+
+    train_loader = torch.utils.data.DataLoader(DataLoader('train',args),batch_size=args.train_batch, shuffle=True,
         num_workers=args.workers, pin_memory=False)
     
-    val_loader = torch.utils.data.DataLoader(datasets.COCO('val',args),batch_size=args.test_batch, shuffle=False,
+    val_loader = torch.utils.data.DataLoader(DataLoader('val',args),batch_size=args.test_batch, shuffle=False,
         num_workers=args.workers, pin_memory=False)
+
 
     lr = args.lr
 
     data_loaders = (train_loader,val_loader)
 
     Machine = machines.__dict__[args.machine](datasets=data_loaders, args=args)
+
 
     for epoch in range(Machine.args.start_epoch, Machine.args.epochs):
 
@@ -37,8 +42,6 @@ def main(args):
         Machine.train(epoch)
         Machine.validate(epoch)
         save_checkpoint(Machine)
-
-    writer.close()
 
 if __name__ == '__main__':
     parser=Options().init(argparse.ArgumentParser(description='PyTorch Training'))
