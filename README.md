@@ -1,4 +1,4 @@
-# Spatial Separated Attention Module (S²AM)
+# Spatial-Separated Attention Module (S²AM)
 This repo contains the PyTorch implement of the paper:
 
 [Regional Attentive Skip-Connection for Image Harmonization]()<br>
