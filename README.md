@@ -1,4 +1,5 @@
-# Spatial-Separated Attention Module (S²AM)
+# Improving the Harmony of the Composite Image by Spatial-Separated Attention Module
+
 This repo contains the PyTorch implement of the paper:
 
 [Regional Attentive Skip-Connection for Image Harmonization]()<br>
@@ -11,30 +12,30 @@ Technical Report,2019
 University of Macau<br>
 Submitted to IEEE TVCG, 2019
 
-### Requirements
+## Requirements
 
 ```
 pip install -r requirements
 ```
 
-### Datasets
+## Datasets
 
 ```
 bash download_dataset.sh
 ```
 
-### Train
+## Train
 
 ```
 ./example/train.sh
 ```
 
-### Demo
+## Demo
 Download the pre-trained model from our synthesied datasets and run the nootbook in `notebook/vis.ipynb`
 
-### Applications
+## the Application of Spatial-Separated Attention Module (S²AM)
 
-##### Image Classification
+### Image Classification
 
 We evaluate our method with the baseline attention module: [CBAM](https://arxiv.org/abs/1807.06521) and original ResNet in CIFAR-10 with the default setting of code in [pytorch_resnet_cifar10](https://github.com/akamaster/pytorch_resnet_cifar10)
 
