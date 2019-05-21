@@ -37,7 +37,7 @@ chmod +x ./example/train.sh && ./example/train.sh
 
 ## Visualization
 
-We use `TensorboardX`   to watch the training process, just install it by the [readme](https://github.com/lanpa/tensorboardX).
+We use `TensorboardX`  to monitor the training process, just install it by the [introduction](https://github.com/lanpa/tensorboardX) of tensorboardX.
 
 run the watching commond as :
 ```
@@ -56,9 +56,8 @@ We evaluate our method with the baseline attention module: [CBAM](https://arxiv.
 | -- | -- | -- | -- |
 | ResNet20 | 8.45% | 7.91% | **7.60%** |
 | ResNet32 | 7.40% | 7.07% | **7.06%** |
-| ResNet44 | 6.96% | 6.92% | **6.85%** |
-| ResNet56 | 6.47% | 6.43% | **6.85%** |
-
+| ResNet44 | 6.96% | 6.92% | **6.58%** |
+| ResNet56 | 6.47% | 6.43% | -- |
 
 
 ## Acknowledgements
