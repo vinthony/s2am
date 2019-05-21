@@ -28,10 +28,21 @@ bash download_dataset.sh
 
 ## Train
 
+All the options of the training process can be found in `options.py`
+
 ```
 chmod +x ./example/train.sh && ./example/train.sh
 ```
 
+
+## Visualization
+
+We use `TensorboardX`   to watch the training process, just install it by the [readme](https://github.com/lanpa/tensorboardX).
+
+run the watching commond as :
+```
+tensorboard --logdir ./checkpoint
+```
 ## Demo
 Download the pre-trained model from our synthesied datasets and run the nootbook in `notebook/vis.ipynb`
 
