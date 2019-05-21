@@ -15,6 +15,8 @@ Submitted to IEEE TVCG, 2019
 ## Requirements
 
 ```
+git clone https://github.com/vinthony/Spatial-Separated-Attention-Module.git
+cd Spatial-Separated-Attention-Module
 pip install -r requirements
 ```
 
@@ -27,7 +29,7 @@ bash download_dataset.sh
 ## Train
 
 ```
-./example/train.sh
+chmod +x ./example/train.sh && ./example/train.sh
 ```
 
 ## Demo
