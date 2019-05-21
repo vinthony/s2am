@@ -38,17 +38,11 @@ Download the pre-trained model from our synthesied datasets and run the nootbook
 
 We evaluate our method with the baseline attention module: [CBAM](https://arxiv.org/abs/1807.06521) and original ResNet in CIFAR-10 with the default setting of code in [pytorch_resnet_cifar10](https://github.com/akamaster/pytorch_resnet_cifar10)
 
-| method | Test err (Ours run) | 
-| -- | -- |
-| ResNet20 | 8.45% |
-| ResNet20 + CBAM | 7.91% |
-| **ResNet20 + R²AM (Ours)** |  **7.6%** |
-| ResNet32 |  7.4% |
-| ResNet32 + CBAM | 7.07% |
-| **ResNet32 + R²AM (Ours)** | **7.06%** |
-| ResNet44 | 6.96% |
-| ResNet44 + CBAM | 6.92% |
-| **ResNet44 + R²AM (Ours)** | **6.85%** |
+| method | Test err (Orginal) | Test err (w/ CBAM) | **Test err (w/ S²AM)**|
+| -- | -- | -- | -- |
+| ResNet20 | 8.45% | 7.91% | **7.60%** |
+| ResNet32 | 7.40% | 7.07% | **7.06%** |
+| ResNet44 | 6.96% | 6.92% | **6.85%** |
 
 
 
