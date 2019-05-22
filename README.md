@@ -13,7 +13,9 @@ University of Macau<br>
 Submitted to IEEE TVCG, 2019
 
 ## Requirements
-
+The code is tested on the python 3.6 and PyTorch v0.4+ under Ubuntu 18.04 OS.
+You need to install all the requirements from 'pip'.
+Anaconda is highly recommendation for install the dependences. 
 ```
 git clone https://github.com/vinthony/Spatial-Separated-Attention-Module.git
 cd Spatial-Separated-Attention-Module
@@ -21,9 +23,10 @@ pip install -r requirements
 ```
 
 ## Datasets
-
+You can download the symthesized datasets by the following scripts:
 ```
-bash download_dataset.sh
+bash download_dataset.sh scoco
+bash download_dataset.sh sadobe5k
 ```
 
 ## Train
