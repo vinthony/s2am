@@ -57,7 +57,7 @@ We evaluate our method with the baseline attention module: [CBAM](https://arxiv.
 | ResNet20 | 8.45% | 7.91% | **7.60%** |
 | ResNet32 | 7.40% | 7.07% | **7.06%** |
 | ResNet44 | 6.96% | 6.92% | **6.58%** |
-| ResNet56 | 6.47% | 6.43% | -- |
+| ResNet56 | 6.47% | 6.43% | **6.41%** |
 
 
 ## Acknowledgements
