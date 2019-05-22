@@ -1,4 +1,4 @@
-# Improving the Harmony of the Composite Image by Spatial-Separated Attention Module
+# Spatial-Separated Attention Module (S²AM)
 
 This repo contains the PyTorch implement of the paper:
 
