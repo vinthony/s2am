@@ -18,7 +18,7 @@ class Options():
                                 ' | '.join(model_names) +
                                 ' (default: resnet18)')
 
-        parser.add_argument('--darch', '-w', metavar='ARCH', default='patchgan',
+        parser.add_argument('--darch', '-w', metavar='DARCH', default='patchgan',
                         choices=model_names,
                         help='model architecture: ' +
                             ' | '.join(model_names) +
@@ -74,13 +74,13 @@ class Options():
         parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                             help='evaluate model on validation set')
         parser.add_argument('--attention-loss-weight', default=1e10, type=float,
-                            help='preception loss')
+                            help='the weight of attention loss')
         parser.add_argument('--loss-pixel', default=100, type=float,
                             help='preception loss')
         parser.add_argument('--loss-attention', default=100, type=float,
                             help='preception loss')
         parser.add_argument('--resize-and-crop', default='resize',
-                            help='Labelmap dist type: (default=Gaussian)')
+                            help='data pre-preocessing: resize | crop  ')
         parser.add_argument('-da', '--data-augumentation', default=False, type=bool,
                             help='preception loss')
         parser.add_argument('-d', '--debug', dest='debug', action='store_true',
@@ -98,7 +98,7 @@ class Options():
         parser.add_argument('--gradient-loss',default=False,type=bool)
         parser.add_argument('--task', default='harmonization',type=str, help='train batchsize')
         parser.add_argument('--mask-loss-type', default='pixelwise',type=str, help='train batchsize')
-        parser.add_argument('--norm-type', default='none',type=str, help='train batchsize')
+        parser.add_argument('--norm-type', default='none',type=str, help='norm type of the input image: gan | vgg | none ')
         parser.add_argument('--random-mask', default=False,type=bool)
         parser.add_argument('--val', default=False,type=bool)
         return parser
