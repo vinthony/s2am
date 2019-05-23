@@ -16,22 +16,15 @@ from scripts.models.unet import *
 # radhn with unet 
 
 __all__ = [
-'unet','rascv1','rascv2','rascv2512','rascinpainting','epsunet',
-'senet','cbam','rascpc',
+'unet','rascv1','rascv2',
+'senet','cbam',
 'urasc','maskedurasc','maskedurascgan','uno',
-'naiveuno','naivemultimaskedurasc','naivemultimaskedurascglobal','naivemmuadain','naivemmucross','naivemmucrossx','naivemmupc','naivemmucrosslite',
-'urascxadain','splicingunet']
+'naiveuno','naivemultimaskedurasc']
 
 
 def naiveuno(**kwargs):
     # unet without mask.
     model = NaiveUnetGenerator(3,3)
-    model.apply(weights_init_kaiming)
-    return model
-
-def splicingunet(**kwargs):
-    # unet without mask.
-    model = NaiveUnetGenerator(3,1)
     model.apply(weights_init_kaiming)
     return model
     
@@ -41,49 +34,11 @@ def naivemultimaskedurasc(**kwargs):
     model.apply(weights_init_kaiming)
     return model
 
-def naivemultimaskedurascglobal(**kwargs):
-    # unet without mask.
-    model = NaiveUnetGenerator(3,3,attention_model=URASCG,basicblock=NaiveMultiURASCG,learning_model=BasicLearningBlock)
-    model.apply(weights_init_kaiming)
-    return model
-
-def naivemmuadain(**kwargs):
-    # unet without mask.
-    model = NaiveUnetGenerator(3,3,attention_model=MaskedURASCADAIN,basicblock=NaiveMultiURASC)
-    model.apply(weights_init_kaiming)
-    return model
-
-def naivemmucross(**kwargs):
-    # unet without mask.
-    model = NaiveUnetGenerator(3,3,attention_model=CrossMaskedURASC,basicblock=NaiveMultiURASC,learning_model=adainLearningBlock)
-    model.apply(weights_init_kaiming)
-    return model
-
-def naivemmucrossx(**kwargs):
-    # unet without mask.
-    model = NaiveUnetGenerator(3,3,attention_model=CrossMaskedURASC,basicblock=NaiveMultiURASCX,learning_model=adainLearningBlock)
-    model.apply(weights_init_kaiming)
-    return model
-
-def naivemmupc(**kwargs):
-    # unet without mask.
-    model = NaiveUnetGenerator(3,3,attention_model=PreCrossMaskedURASC,basicblock=NaiveMultiURASC,learning_model=adainLearningBlock)
-    model.apply(weights_init_kaiming)
-    return model
-
-def naivemmucrosslite(**kwargs):
-    # unet without mask.
-    model = NaiveUnetGenerator(3,3,attention_model=CrossMaskedURASC,basicblock=NaiveMultiURASC,learning_model=BasicLearningBlockLite)
-    model.apply(weights_init_kaiming)
-    return model
-
-
 def uno(**kwargs):
     # unet without mask.
     model = UnetGenerator(3,3,is_attention_layer=True,attention_model=UNO)
     model.apply(weights_init_kaiming)
     return model
-
 
 def urasc(**kwargs):
     # learning without mask based on RASCV2.
@@ -94,12 +49,6 @@ def urasc(**kwargs):
 def maskedurasc(**kwargs):
     # learning without mask based on RASCV2.
     model = UnetGenerator(3,3,is_attention_layer=True,attention_model=MaskedURASC,basicblock=MaskedMinimalUnetV2)
-    model.apply(weights_init_kaiming)
-    return model
-
-def urascxadain(**kwargs):
-    # learning without mask based on RASCV2.
-    model = UnetGenerator(3,3,is_attention_layer=True,attention_model=MaskedURASCADAIN,basicblock=MaskedMinimalUnetV2)
     model.apply(weights_init_kaiming)
     return model
 
@@ -114,25 +63,11 @@ def rascv2(**kwargs):
     model.apply(weights_init_kaiming)
     return model
 
-def rascv2512(**kwargs):
-    model = UnetGenerator(4,3,is_attention_layer=True,attention_model=RASC,basicblock=MinimalUnetV2,num_downs=9)
-    model.apply(weights_init_kaiming)
-    return model
-
-
 def rascv1(**kwargs):
     # Splicing Region: features -> GlobalAttentionModule -> CNN -> * SplicingSmoothMask ->
     # mixed Region: faetures -> GlobalAttentionModule ----------⬆ 
     # Background Region: faetures -> GlobalAttentionModule -> * ReversedSmoothMask ->
     model = UnetGenerator(4,3,is_attention_layer=True,attention_model=RASC)
-    model.apply(weights_init_kaiming)
-    return model
-
-def rascinpainting(**kwargs):
-    # Splicing Region: features -> GlobalAttentionModule -> CNN -> * SplicingSmoothMask ->
-    # mixed Region: faetures -> GlobalAttentionModule ----------⬆ 
-    # Background Region: faetures -> GlobalAttentionModule -> * ReversedSmoothMask ->
-    model = UnetGenerator(4,3,is_attention_layer=True,attention_model=RASC,basicblock=MinimalUnetInpainting)
     model.apply(weights_init_kaiming)
     return model
 
@@ -142,19 +77,8 @@ def unet(**kwargs):
     model.apply(weights_init_kaiming)
     return model
 
-def epsunet(**kwargs):
-    # just original unet
-    model = UnetGenerator(4,3,conv_block=EpsConX2d)
-    model.apply(weights_init_kaiming)
-    return model
-
 def cbam(**kwargs):
     model = UnetGenerator(4,3,is_attention_layer=True,attention_model=CBAMConnect)
-    model.apply(weights_init_kaiming)
-    return model
-
-def rascpc(**kwargs):
-    model = UnetGenerator(4,3,is_attention_layer=True,attention_model=RASC_PC)
     model.apply(weights_init_kaiming)
     return model
 
