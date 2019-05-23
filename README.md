@@ -3,12 +3,12 @@
 This repo contains the PyTorch implement of the following paper:
 
 &nbsp;&nbsp;&nbsp;&nbsp;[Regional Attentive Skip-Connection for Image Harmonization]()<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[Xiaodong Cun](), [Chi-Man Pun]()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Xiaodong Cun](https://vinthony.github.io/academicpages.github.io/), [Chi-Man Pun](http://www.cis.umac.mo/~cmpun/)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;University of Macau<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Technical Report,2019
 
 &nbsp;&nbsp;&nbsp;&nbsp;[Improving the Harmony of the Composite Image by Spatial-Separated Attention Module]()<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[Xiaodong Cun](), [Chi-Man Pun]()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Xiaodong Cun](https://vinthony.github.io/academicpages.github.io/), [Chi-Man Pun](http://www.cis.umac.mo/~cmpun/)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;University of Macau<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Submitted to IEEE TVCG, 2019
 
