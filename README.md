@@ -1,16 +1,16 @@
 # Spatial-Separated Attention Module (S²AM)
 
-This repo contains the PyTorch implement of the paper:
+This repo contains the PyTorch implement of the following paper:
 
-[Regional Attentive Skip-Connection for Image Harmonization]()<br>
-[Xiaodong Cun](), [Chi-Man Pun]()<br>
-University of Macau<br>
-Technical Report,2019
+&nbsp;&nbsp;&nbsp;&nbsp;[Regional Attentive Skip-Connection for Image Harmonization]()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Xiaodong Cun](), [Chi-Man Pun]()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;University of Macau<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Technical Report,2019
 
-[Improving the Harmony of the Composite Image by Spatial-Separated Attention Module]()<br>
-[Xiaodong Cun](), [Chi-Man Pun]()<br>
-University of Macau<br>
-Submitted to IEEE TVCG, 2019
+&nbsp;&nbsp;&nbsp;&nbsp;[Improving the Harmony of the Composite Image by Spatial-Separated Attention Module]()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[Xiaodong Cun](), [Chi-Man Pun]()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;University of Macau<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Submitted to IEEE TVCG, 2019
 
 ## Requirements
 The code is tested on the python 3.6 and PyTorch v0.4+ under Ubuntu 18.04 OS.</br>
