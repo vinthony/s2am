@@ -38,8 +38,14 @@ bash download_dataset.sh sadobe5k
 All the options of the training can be found in `options.py`
 
 ```
-chmod +x ./example/train.sh && ./example/train_harmorization.sh
-chmod +x ./example/train.sh && ./example/train_harmorization_wo_mask.sh
+# train the S2AD methods from our TVCG paper.
+chmod +x ./example/train_harmorization_s2ad.sh && ./example/train_harmorization_s2ad.sh
+
+# train the S2ASC methods from the skip-connection paper.
+chmod +x ./example/train_harmorization_s2asc.sh && ./example/train_harmorization_s2asc.sh
+
+# train the image harmonization w/o mask task from our TVCG paper.
+chmod +x ./example/train_harmorization_wo_mask.sh && ./example/train_harmorization_wo_mask.sh
 ```
 
 ## Visualization
