@@ -13,17 +13,21 @@ University of Macau<br>
 Submitted to IEEE TVCG, 2019
 
 ## Requirements
-The code is tested on the python 3.6 and PyTorch v0.4+ under Ubuntu 18.04 OS.
-You need to install all the requirements from 'pip'.
-Anaconda is highly recommendation for install the dependences. 
+The code is tested on the python 3.6 and PyTorch v0.4+ under Ubuntu 18.04 OS.</br>
+You need to install all the requirements from `pip`.</br>
+`Anaconda` is highly recommendation for install the dependences.</br> 
 ```
-git clone https://github.com/vinthony/Spatial-Separated-Attention-Module.git
-cd Spatial-Separated-Attention-Module
-pip install -r requirements
+git clone https://github.com/vinthony/s2am.git
+cd s2am
+pip install -r requirements.txt
 ```
 
 ## Datasets
-You can download the symthesized datasets by the following scripts:
+We train the network under the synthesized datasets.<br>
+`SCOCO` dataset contains `40k` images for training and `1.7k` images for testing.<br>
+`S-Adobe5k` dataset contains `32k` images form training and `2k` images for testing. <br>
+The following command will automatically download the dataset and unzip the synthesized dataset to the cooresponding dataset folders.
+
 ```
 bash download_dataset.sh scoco
 bash download_dataset.sh sadobe5k
@@ -31,12 +35,12 @@ bash download_dataset.sh sadobe5k
 
 ## Train
 
-All the options of the training process can be found in `options.py`
+All the options of the training can be found in `options.py`
 
 ```
-chmod +x ./example/train.sh && ./example/train.sh
+chmod +x ./example/train.sh && ./example/train_harmorization.sh
+chmod +x ./example/train.sh && ./example/train_harmorization_wo_mask.sh
 ```
-
 
 ## Visualization
 
@@ -49,9 +53,9 @@ tensorboard --logdir ./checkpoint
 ## Demo
 Download the pre-trained model from our synthesied datasets and run the nootbook in `notebook/visualize.ipynb`
 
-## the Application of Spatial-Separated Attention Module (S²AM) without mask
+## The Application of Spatial-Separated Attention Module (S²AM) w/o mask
 
-### Image Classification
+#### Image Classification
 
 We evaluate our method with the baseline attention module: [CBAM](https://arxiv.org/abs/1807.06521) and original ResNet in CIFAR-10 with the default setting of code in [pytorch_resnet_cifar10](https://github.com/akamaster/pytorch_resnet_cifar10)
 
@@ -63,6 +67,6 @@ We evaluate our method with the baseline attention module: [CBAM](https://arxiv.
 | ResNet56 | 6.47% | 6.43% | **6.41%** |
 
 
-## Acknowledgements
 
+## Acknowledgements
 
