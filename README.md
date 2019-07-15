@@ -73,7 +73,10 @@ We evaluate our method with the baseline attention module: [CBAM](https://arxiv.
 | ResNet44 | 6.96% | 6.92% | **6.58%** |
 | ResNet56 | 6.47% | 6.43% | **6.41%** |
 
-
-
-## Acknowledgements
+#### Interactive Wartmark Removal from a region.
+By regard a region as mask, Our method can use to remove the visible wartmark from the image. We generate the datasets from VOC as image and 100 famous logo as watermark region. The network trains on 70 of them and testing on the rest of them, here are some random results:
+![1511](https://user-images.githubusercontent.com/4397546/61209289-e80b5580-a72b-11e9-9608-6da743935cb0.png)
+![1582](https://user-images.githubusercontent.com/4397546/61209290-e80b5580-a72b-11e9-862a-24f71217b43d.png)
+![1654](https://user-images.githubusercontent.com/4397546/61209291-e8a3ec00-a72b-11e9-8372-ed45e26d18e4.png)
+![1728](https://user-images.githubusercontent.com/4397546/61209292-e8a3ec00-a72b-11e9-875b-ed7bf9027af9.png)
 
