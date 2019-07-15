@@ -5,7 +5,7 @@ This repo contains the PyTorch implement of the following paper:
 &nbsp;&nbsp;&nbsp;&nbsp;[Improving the Harmony of the Composite Image by Spatial-Separated Attention Module]()<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Xiaodong Cun](https://vinthony.github.io/academicpages.github.io/), [Chi-Man Pun](http://www.cis.umac.mo/~cmpun/)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;University of Macau<br>
-&nbsp;&nbsp;&nbsp;&nbsp;Submitted, 2019
+&nbsp;&nbsp;&nbsp;&nbsp;Submitted to journal, 2019
 
 ## Requirements
 The code is tested on the python 3.6 and PyTorch v0.4+ under Ubuntu 18.04 OS.</br>
@@ -24,8 +24,7 @@ We train the network under the synthesized datasets.<br>
 The following command will automatically download the dataset and unzip the synthesized dataset to the cooresponding dataset folders.
 
 ```
-bash download_dataset.sh scoco
-bash download_dataset.sh sadobe5k
+TBD
 ```
 
 ## Train
@@ -33,13 +32,13 @@ bash download_dataset.sh sadobe5k
 All the options of the training can be found in `options.py`
 
 ```
-# train the S2AD methods from our TVCG paper.
+# train the S2AD methods 
 chmod +x ./example/train_harmorization_s2ad.sh && ./example/train_harmorization_s2ad.sh
 
-# train the S2ASC methods from the skip-connection paper.
+# train the S2ASC methods .
 chmod +x ./example/train_harmorization_s2asc.sh && ./example/train_harmorization_s2asc.sh
 
-# train the image harmonization w/o mask task from our TVCG paper.
+# train the image harmonization w/o mask task from our paper.
 chmod +x ./example/train_harmorization_wo_mask.sh && ./example/train_harmorization_wo_mask.sh
 ```
 
@@ -54,7 +53,7 @@ tensorboard --logdir ./checkpoint
 ## Demo
 ```
 # download the pretrain models
-download_models.sh s2b_scoco
+TBD
 
 # create the jupyter lab server 
 jupyter lab
