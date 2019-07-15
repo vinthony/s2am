@@ -7,6 +7,17 @@ This repo contains the PyTorch implement of the following paper:
 &nbsp;&nbsp;&nbsp;&nbsp;University of Macau<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Submitted to journal, 2019
 
+## Abstract
+
+Image composition is one of the most important applications in image processing. However, the inharmonious appearance between the spliced region and background degrade the quality of image. Thus, we address the problem of Image Harmonization: Given a spliced image and the mask of the spliced region, we try to harmonize the ''style'' of the pasted region with the background (non-spliced region). Previous approaches have been focusing on learning directly by the neural network.
+In this work, we start from an empirical observation: the differences can only be found in the spliced region between the spliced image and the harmonized result while they share the same semantic information and the appearance in the non-spliced region. Thus, in order to learn the feature map in the masked region and the others individually, we propose a novel attention module named Spatial-Separated Attention Module (S²$AM). Furthermore, we design a novel image harmonization framework by inserting the S²$AM in the coarser low level features of the Unet structure by two different ways. Besides image harmonization, we make a big step for harmonizing the composite image without the specific mask under previous observation. The experiments show that the proposed S²$AM performs better than other state-of-the-art attention modules in our task.  Moreover, we demonstrate the advantages of our model against other state-of-the-art image harmonization methods via criteria from multiple points of view.
+
+## Some Results
+
+![results](https://user-images.githubusercontent.com/4397546/61209516-931c0f00-a72c-11e9-84ef-c7b7bc794c0e.png)
+![sample](https://user-images.githubusercontent.com/4397546/61209520-93b4a580-a72c-11e9-881f-40de42c3a4f7.png)
+
+
 ## Requirements
 The code is tested on the python 3.6 and PyTorch v0.4+ under Ubuntu 18.04 OS.</br>
 You need to install all the requirements from `pip`.</br>
