@@ -33,7 +33,7 @@ pip install -r requirements.txt
 
 ## Datasets
 We train the network under the synthesized datasets.<br>
-`SCOCO` dataset contains `40k` images for training and `1.7k` images for testing.<br>
+[SCOCO dataset(5G)](https://uofmacau-my.sharepoint.com/:u:/g/personal/yb87432_umac_mo/EZ4-Qpk-iHFLrTfZKIzAivoBn_Jm8mMkZ6EiqAsz4M0Uhg?e=uqShf3) contains `40k` images for training and `1.7k` images for testing.<br>
 `S-Adobe5k` dataset contains `32k` images form training and `2k` images for testing. <br>
 The following command will automatically download the dataset and unzip the synthesized dataset to the cooresponding dataset folders.
 
