@@ -9,6 +9,19 @@ This repo contains the PyTorch implement of the following paper:
 &nbsp;&nbsp;&nbsp;&nbsp;Submitted to journal, 2019
 
 
+## **Citation**
+
+If you find our work useful in your research, please consider citing:
+```
+@misc{cun2019improving,
+    title={Improving the Harmony of the Composite Image by Spatial-Separated Attention Module},
+    author={Xiaodong Cun and Chi-Man Pun},
+    year={2019},
+    eprint={1907.06406},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+```
 
 ## Abstract
 
