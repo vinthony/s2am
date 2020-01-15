@@ -106,38 +106,6 @@ class MinimalUnet(nn.Module):
 
         return x_out
 
-
-class MinimalUnetInpainting(nn.Module):
-    """docstring for MinimalUnetInpainting"""
-    def __init__(self, down=None,up=None,submodule=None,attention=None,withoutskip=False,**kwags):
-        super(MinimalUnetInpainting, self).__init__()
-        
-        self.down = nn.Sequential(*down)
-        self.up = nn.Sequential(*up) 
-        self.sub = submodule
-        self.attention = attention
-        self.withoutskip = withoutskip
-        self.is_attention = not self.attention == None 
-        self.is_sub = not submodule == None 
-    
-    def forward(self,x,mask=None):
-       
-        if self.is_sub:
-            x_inner = self.down(x)
-            if self.is_attention:
-                x_inner = self.attention(x_inner,mask)
-            x_up,_ = self.sub(x_inner,mask)
-        else:
-            x_up = self.down(x)
-
-        if self.withoutskip: #outer or inner.
-            x_out = self.up(x_up)
-        else:
-            x_out = (torch.cat([x,self.up(x_up)],1),mask)
-
-        return x_out
-
-
 # Defines the submodule with skip connection.
 # X -------------------identity---------------------- X
 #   |-- downsampling -- |submodule| -- upsampling --|

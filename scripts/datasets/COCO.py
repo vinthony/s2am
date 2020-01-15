@@ -8,7 +8,6 @@ import random
 import math
 import matplotlib.pyplot as plt
 from collections import namedtuple
-import h5py
 from os import listdir
 from os.path import isfile, join
 
@@ -107,7 +106,7 @@ class COCO(data.Dataset):
         mask = transforms.Compose(trans)(mask)
         inputs = torch.cat([img,mask],0)
 
-        return (inputs,target,img_path.split('/')[-1])
+        return (inputs,target)
 
     def __len__(self):
 
