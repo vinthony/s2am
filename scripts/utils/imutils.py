@@ -5,7 +5,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import scipy.misc
-from matplotlib import cm
 from .misc import *
 
 def im_to_numpy(img):
@@ -227,17 +226,6 @@ def image_gradient(x):
     
     return G_x,G_y
 
-
-
-def get_jet():
-    colormap_int = np.zeros((256, 3), np.uint8)
- 
-    for i in range(0, 256, 1):
-        colormap_int[i, 0] = np.int_(np.round(cm.jet(i)[0] * 255.0))
-        colormap_int[i, 1] = np.int_(np.round(cm.jet(i)[1] * 255.0))
-        colormap_int[i, 2] = np.int_(np.round(cm.jet(i)[2] * 255.0))
-
-    return colormap_int
 
 
 def clamp(num, min_value, max_value):

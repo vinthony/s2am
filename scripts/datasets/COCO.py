@@ -6,7 +6,6 @@ import numpy as np
 import json
 import random
 import math
-import matplotlib.pyplot as plt
 from collections import namedtuple
 from os import listdir
 from os.path import isfile, join

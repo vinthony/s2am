@@ -11,14 +11,12 @@ import math
 import torchvision
 from torchvision import datasets, models, transforms
 
-import torch_dct as dct
-
 from scripts.utils.model_init import *
 from scripts.models.unet import oUnetGenerator,UnetGenerator
 
 # radhn with unet 
 
-__all__ = ['patchgan','patchganwithoutnorm','dctpatchganwithoutnorm','pixelgan','compared']
+__all__ = ['patchgan','patchganwithoutnorm','pixelgan','compared']
 
 
 class CompareDiscriminator(nn.Module):
@@ -195,36 +193,6 @@ class NLayerDiscriminator(nn.Module):
         """Standard forward."""
         return self.model(input)
 
-class DCTDiscriminator(nn.Module):
-    def __init__(self, in_channels=3, normalization=True):
-        super(DCTDiscriminator, self).__init__()
-
-        def discriminator_block(in_filters, out_filters, normalization=True):
-            """Returns downsampling layers of each discriminator block"""
-            layers = [nn.Conv2d(in_filters, out_filters, 4, stride=2, padding=1)]
-            if normalization:
-                layers.append(nn.InstanceNorm2d(out_filters))
-            layers.append(nn.LeakyReLU(0.2, inplace=True))
-            return layers
-
-        # patchgan(16)
-        self.model = nn.Sequential(
-            *discriminator_block(in_channels*2, 64, normalization=False), # 256->128
-            *discriminator_block(64, 128, normalization=normalization),# 128->64
-            *discriminator_block(128, 256, normalization=normalization), # 64->32
-            *discriminator_block(256, 512, normalization=normalization), # 32->16
-            nn.ZeroPad2d((1, 0, 1, 0)), 
-            nn.Conv2d(512, 1, 4, padding=1, bias=False) 
-        )
-
-    def forward(self, img_A, img_B):
-        # Concatenate image and condition image by channels to produce input
-        img_A = dct.dct_2d(img_A)
-        img_B = dct.dct_2d(img_B)
-        img_input = torch.cat((img_A, img_B), 1)
-        return self.model(img_input)
-
-
 def patchgan():
     model = Discriminator()
     model.apply(weights_init_normal)
@@ -239,13 +207,6 @@ def pixelgan():
     model = PixelDiscriminator()
     model.apply(weights_init_normal)
     return model
-
-
-def dctpatchganwithoutnorm():
-    model = DCTDiscriminator()
-    model.apply(weights_init_normal)
-    return model
-
 
 def compared():
     model = CompareDiscriminator()

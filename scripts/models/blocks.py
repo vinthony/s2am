@@ -8,10 +8,20 @@ import math
 import numbers
 
 from scripts.utils.model_init import *
-from scripts.models.vgg import Vgg16
 from torch import nn, cuda
 from torch.autograd import Variable
 
+class BasicLearningBlockLite(nn.Module):
+    """docstring for BasicLearningBlockLite"""
+    def __init__(self,channel):
+        super(BasicLearningBlockLite, self).__init__()
+        self.rbn1 = nn.BatchNorm2d(channel)
+        self.rconv1 = nn.Conv2d(channel,channel*2,3,padding=1,bias=False)
+        self.rconv2 = nn.Conv2d(channel*2,channel,3,padding=1,bias=False)
+
+    def forward(self,feature,style):
+        return F.relu(self.rconv2(F.relu(self.rconv1(self.rbn1(feature+style)))))
+        
 class BasicLearningBlock(nn.Module):
     """docstring for BasicLearningBlock"""
     def __init__(self,channel):
