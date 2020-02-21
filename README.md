@@ -6,8 +6,9 @@ This repo contains the PyTorch implement of the following paper:
 &nbsp;&nbsp;&nbsp;&nbsp;[Improving the Harmony of the Composite Image by Spatial-Separated Attention Module](https://arxiv.org/abs/1907.06406)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Xiaodong Cun](https://vinthony.github.io/academicpages.github.io/), [Chi-Man Pun](http://www.cis.umac.mo/~cmpun/)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;University of Macau<br>
-&nbsp;&nbsp;&nbsp;&nbsp;Submitted to journal, 2019
+&nbsp;&nbsp;&nbsp;&nbsp;Trans. on Image Processing, 2020, In Press.
 
+> This repo. is still work-in-progress. More details of the pre-trained models, training details and the datasets will be released in the future.
 
 ## **Citation**
 
