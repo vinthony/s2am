@@ -58,12 +58,12 @@ def maskedurascgan(**kwargs):
     model.apply(weights_init_kaiming)
     return model
 
-def rascv2(**kwargs):
+def s2ad(**kwargs):
     model = UnetGenerator(4,3,is_attention_layer=True,attention_model=RASC,basicblock=MinimalUnetV2)
     model.apply(weights_init_kaiming)
     return model
 
-def rascv1(**kwargs):
+def s2asc(**kwargs):
     # Splicing Region: features -> GlobalAttentionModule -> CNN -> * SplicingSmoothMask ->
     # mixed Region: faetures -> GlobalAttentionModule ----------⬆ 
     # Background Region: faetures -> GlobalAttentionModule -> * ReversedSmoothMask ->
