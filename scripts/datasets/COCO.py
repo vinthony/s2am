@@ -67,34 +67,12 @@ class COCO(data.Dataset):
         trans = []
         transimage = []
 
-        if self.args.resize_and_crop == 'resize':
-            resize = transforms.Resize((self.input_size,self.input_size))
-            trans.append(resize)
-            transimage.append(resize)
-
-        if self.args.resize_and_crop == 'crop':
-            # if image < self.input_size,padding with zero
-            imh,imw = img.size
-            
-            rdh = random.randint(0,(imh - self.input_size)//2) if imh - self.input_size > 2 else 0
-            rdw = random.randint(0,(imw - self.input_size)//2) if imw - self.input_size > 2 else 0
-
-            coor = (rdw,rdh,rdw+self.input_size,rdh+self.input_size)
-
-            img = img.crop(coor)
-            mask = mask.crop(coor)
-            target = target.crop(coor)
+        resize = transforms.Resize((self.input_size,self.input_size))
+        trans.append(resize)
+        transimage.append(resize)
 
         trans.append(transforms.ToTensor())
         transimage.append(transforms.ToTensor())
-
-        if self.args.norm_type == 'gan':
-            norm = transforms.Normalize(mean=[0.5,0.5,0.5],std=[0.5,0.5,0.5])
-            transimage.append(norm)
-            
-        if self.args.norm_type == 'vgg':
-            norm = transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
-            transimage.append(norm)
         
         if isfile(self.train[index].replace('image','natural')):
             target = transforms.Compose(transimage)(target)
@@ -105,7 +83,7 @@ class COCO(data.Dataset):
         mask = transforms.Compose(trans)(mask)
         inputs = torch.cat([img,mask],0)
 
-        return (inputs,target)
+        return (inputs,target,img_path)
 
     def __len__(self):
 

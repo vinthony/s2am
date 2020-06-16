@@ -1,4 +1,5 @@
+from .vgg import *
+from .dhn import *
 from .backbone_unet import *
-from .discriminator import *
-
+from .can import *
 

@@ -1,12 +1,9 @@
 import torch
 import torch.nn as nn
 from torch.nn import init
-import torch.nn.functional as F
-
 import functools
 from scripts.models.blocks import *
 from scripts.models.rasc import *
-from scripts.models.urasc import *
 
 
 class MaskedMinimalUnetV2(nn.Module):
@@ -106,13 +103,14 @@ class MinimalUnet(nn.Module):
 
         return x_out
 
+
 # Defines the submodule with skip connection.
 # X -------------------identity---------------------- X
 #   |-- downsampling -- |submodule| -- upsampling --|
 class UnetSkipConnectionBlock(nn.Module):
     def __init__(self, outer_nc, inner_nc, input_nc=None,
                  submodule=None, outermost=False, innermost=False, norm_layer=nn.BatchNorm2d, use_dropout=False,is_attention_layer=False,
-                 attention_model=RASC,basicblock=MinimalUnet,outermostattention=False,conv_block=nn.Conv2d):
+                 attention_model=RASC,basicblock=MinimalUnet,outermostattention=False):
         super(UnetSkipConnectionBlock, self).__init__()
         self.outermost = outermost
         if type(norm_layer) == functools.partial:
@@ -121,13 +119,13 @@ class UnetSkipConnectionBlock(nn.Module):
             use_bias = norm_layer == nn.InstanceNorm2d
         if input_nc is None:
             input_nc = outer_nc
-        downconv = conv_block(input_nc, inner_nc, kernel_size=4,
+        downconv = nn.Conv2d(input_nc, inner_nc, kernel_size=4,
                              stride=2, padding=1, bias=use_bias)
-
         downrelu = nn.LeakyReLU(0.2, True)
         downnorm = norm_layer(inner_nc)
         uprelu = nn.ReLU(True)
         upnorm = norm_layer(outer_nc)
+
 
         if outermost:
             upconv = nn.ConvTranspose2d(inner_nc * 2, outer_nc,
@@ -153,10 +151,8 @@ class UnetSkipConnectionBlock(nn.Module):
             if is_attention_layer:
                 if MinimalUnetV2.__qualname__ in basicblock.__qualname__  :
                     attention_model = attention_model(input_nc*2)
-                elif MinimalUnetInpainting.__qualname__ in basicblock.__qualname__:
-                    attention_model = attention_model(inner_nc)   
                 else:
-                    attention_model = attention_model(input_nc)   
+                    attention_model = attention_model(input_nc)     
             else:
                 attention_model = None
                 
@@ -174,38 +170,29 @@ class UnetSkipConnectionBlock(nn.Module):
             
 class UnetGenerator(nn.Module):
     def __init__(self, input_nc, output_nc, num_downs=8, ngf=64,norm_layer=nn.BatchNorm2d, use_dropout=False,
-                 is_attention_layer=False,attention_model=RASC,use_inner_attention=False,basicblock=MinimalUnet,final_layer=None,outputmask=False,conv_block=nn.Conv2d):
+                 is_attention_layer=False,attention_model=RASC,use_inner_attention=False,basicblock=MinimalUnet):
         super(UnetGenerator, self).__init__()
 
         # 8 for 256x256
         # 9 for 512x512
         # construct unet structure
-        self.need_mask = ( (not input_nc == output_nc) and input_nc == 4 )
+        self.need_mask = not input_nc == output_nc
 
-        unet_block = UnetSkipConnectionBlock(ngf * 8, ngf * 8, input_nc=None, submodule=None, norm_layer=norm_layer, innermost=True,basicblock=basicblock,conv_block=conv_block) # 1
+        unet_block = UnetSkipConnectionBlock(ngf * 8, ngf * 8, input_nc=None, submodule=None, norm_layer=norm_layer, innermost=True,basicblock=basicblock) # 1
         for i in range(num_downs - 5): #3 times
-            unet_block = UnetSkipConnectionBlock(ngf * 8, ngf * 8, input_nc=None, submodule=unet_block, norm_layer=norm_layer, use_dropout=use_dropout,is_attention_layer=use_inner_attention,attention_model=attention_model,basicblock=basicblock,conv_block=conv_block) # 8,4,2
-        unet_block = UnetSkipConnectionBlock(ngf * 4, ngf * 8, input_nc=None, submodule=unet_block, norm_layer=norm_layer,is_attention_layer=is_attention_layer,attention_model=attention_model,basicblock=basicblock,conv_block=conv_block) #16
-        unet_block = UnetSkipConnectionBlock(ngf * 2, ngf * 4, input_nc=None, submodule=unet_block, norm_layer=norm_layer,is_attention_layer=is_attention_layer,attention_model=attention_model,basicblock=basicblock,conv_block=conv_block) #32
-        unet_block = UnetSkipConnectionBlock(ngf, ngf * 2, input_nc=None, submodule=unet_block, norm_layer=norm_layer,is_attention_layer=is_attention_layer,attention_model=attention_model,basicblock=basicblock, outermostattention=True,conv_block=conv_block) #64 
+            unet_block = UnetSkipConnectionBlock(ngf * 8, ngf * 8, input_nc=None, submodule=unet_block, norm_layer=norm_layer, use_dropout=use_dropout,is_attention_layer=use_inner_attention,attention_model=attention_model,basicblock=basicblock) # 8,4,2
+        unet_block = UnetSkipConnectionBlock(ngf * 4, ngf * 8, input_nc=None, submodule=unet_block, norm_layer=norm_layer,is_attention_layer=is_attention_layer,attention_model=attention_model,basicblock=basicblock) #16
+        unet_block = UnetSkipConnectionBlock(ngf * 2, ngf * 4, input_nc=None, submodule=unet_block, norm_layer=norm_layer,is_attention_layer=is_attention_layer,attention_model=attention_model,basicblock=basicblock) #32
+        unet_block = UnetSkipConnectionBlock(ngf, ngf * 2, input_nc=None, submodule=unet_block, norm_layer=norm_layer,is_attention_layer=is_attention_layer,attention_model=attention_model,basicblock=basicblock, outermostattention=True) #64 
         unet_block = UnetSkipConnectionBlock(output_nc, ngf, input_nc=input_nc, submodule=unet_block, outermost=True, basicblock=basicblock, norm_layer=norm_layer) # 128
 
         self.model = unet_block
-        self.final_layer = final_layer
-        self.outputmask = outputmask
 
     def forward(self, input):
         if self.need_mask:
-            return torch.tanh(self.model(input,input[:,3:4,:,:]))
+            return self.model(input,input[:,3:4,:,:])
         else:
-            output = self.model(input[:,0:3,:,:],input[:,3:4,:,:])
-            if self.outputmask and self.final_layer:
-                return (torch.tanh(output[0]),output[1])
-            elif self.final_layer:
-                return torch.tanh(output)
-            else:
-                return output
-
+            return self.model(input[:,0:3,:,:],input[:,3:4,:,:])
 
 # Defines the Unet generator.
 # |num_downs|: number of downsamplings in UNet. For example,
@@ -286,75 +273,93 @@ class oUnetSkipConnectionBlock(nn.Module):
         else:
             return torch.cat([x, self.model(x)], 1)
 
-
-class UNetDown(nn.Module):
-    def __init__(self, in_size, out_size, normalize=True, dropout=0.0):
-        super(UNetDown, self).__init__()
+class DefaultLayerDown(nn.Module):
+    def __init__(self,in_size,out_size,normalize=True, dropout=0.0):
+        super(DefaultLayerDown, self).__init__()
         layers = [nn.Conv2d(in_size, out_size, 4, 2, 1, bias=False)]
-        if normalize:
-            layers.append(nn.InstanceNorm2d(out_size))
-        layers.append(nn.LeakyReLU(0.2))
+        # if normalize:
+        #     layers.append(nn.InstanceNorm2d(out_size))
+        # layers.append(nn.LeakyReLU(0.2))
         if dropout:
             layers.append(nn.Dropout(dropout))
+        
         self.model = nn.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self,x):
         return self.model(x)
 
 
-
-class UNetUp(nn.Module):
-    def __init__(self, in_size, out_size, dropout=0.0):
-        super(UNetUp, self).__init__()
+class DefaultLayerUp(nn.Module):
+    def __init__(self,in_size,out_size, dropout=0.0):
+        super(DefaultLayerUp, self).__init__()
         layers = [
             nn.ConvTranspose2d(in_size, out_size, 4, 2, 1, bias=False),
-            nn.InstanceNorm2d(out_size),
-            nn.ReLU(inplace=True),
+            # nn.InstanceNorm2d(out_size),
+            # nn.ReLU(inplace=True),
         ]
         if dropout:
             layers.append(nn.Dropout(dropout))
-
+        
         self.model = nn.Sequential(*layers)
 
-    def forward(self, x, skip_input):
-        x = self.model(x)
-        x = torch.cat((x, skip_input), 1)
+    def forward(self,x):
+        return self.model(x)
 
+class GatedDownX(nn.Module):
+    def __init__(self, in_size, out_size, normalize=True, dropout=0.0):
+        super(GatedDownX, self).__init__()
+        self.front = nn.Conv2d(in_size, out_size*2, 4, 2, 1, bias=False)
+
+    def forward(self, input):
+        x = self.front(input)
+        x,y = torch.chunk(x,2,dim=1)
+        foreground_feature = F.leaky_relu(x,0.2)
+        attention = F.sigmoid(y)
+        x = foreground_feature * attention 
         return x
 
-class NaiveMinimalUnet(nn.Module):
-    def __init__(self, input_nc, output_nc, ngf=64,norm_layer=nn.BatchNorm2d, use_dropout=False,
-                 is_attention_layer=False,attention_model=RASC,use_inner_attention=False,learning_model=None):
-        super(NaiveMinimalUnet, self).__init__()
+class GatedUpX(nn.Module):
+    def __init__(self, in_size, out_size, dropout=0.0):
+        super(GatedUpX, self).__init__()
+        self.front = nn.ConvTranspose2d(in_size, out_size*2, 4, 2, 1, bias=False)
 
-        # construct unet structure
+    def forward(self, input, skip_input):
+        x = self.front(input)
+        x, y = torch.chunk(x, 2, dim=1)
+        foreground_feature = F.leaky_relu(x, 0.2)
+        attention = F.sigmoid(y)
+        x = foreground_feature * attention 
+        x = torch.cat((x, skip_input), 1)
+        return x
 
-        self.dropout = 0.5 if use_dropout else 0
+class GatedUnet(nn.Module):
+    def __init__(self, in_channels=3, out_channels=3, down=GatedDownX, up=GatedUpX, ngf=48):
+        super(GatedUnet, self).__init__()
 
-        self.down1 = UNetDown(input_nc, ngf, normalize=False) # 2
-        self.down2 = UNetDown(ngf, ngf*2) # 4
-        self.down3 = UNetDown(ngf*2, ngf*4) # 8
-        self.down4 = UNetDown(ngf*4, ngf*8, dropout=self.dropout) # 16
-        self.down5 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 32
-        self.down6 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 64
-        self.down7 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 128
-        self.down8 = UNetDown(ngf*8, ngf*8, normalize=False, dropout=self.dropout) #256
+        self.down1 = down(in_channels, ngf, normalize=False)
+        self.down2 = down(ngf, ngf*2)
+        self.down3 = down(ngf*2, ngf*4)
+        self.down4 = down(ngf*4, ngf*8, dropout=0.5)
+        self.down5 = down(ngf*8, ngf*8, dropout=0.5)
+        self.down6 = down(ngf*8, ngf*8, dropout=0.5)
+        self.down7 = down(ngf*8, ngf*8, dropout=0.5)
+        self.down8 = down(ngf*8, ngf*8, normalize=False, dropout=0.5)
 
-        self.up1 = UNetUp(ngf*8, ngf*8, dropout=self.dropout) #128
-        self.up2 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #64
-        self.up3 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #32
-        self.up4 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #16
-        self.up5 = UNetUp(ngf*16, ngf*4) #8
-        self.up6 = UNetUp(ngf*8, ngf*2) #4
-        self.up7 = UNetUp(ngf*4, ngf) #2
+        self.up1 = up(ngf*8, ngf*8, dropout=0.5)
+        self.up2 = up(ngf*16, ngf*8, dropout=0.5)
+        self.up3 = up(ngf*16, ngf*8, dropout=0.5)
+        self.up4 = up(ngf*16, ngf*8, dropout=0.5)
+        self.up5 = up(ngf*16, ngf*4)
+        self.up6 = up(ngf*8, ngf*2)
+        self.up7 = up(ngf*4, ngf)
 
         self.final = nn.Sequential(
             nn.Upsample(scale_factor=2),
             nn.ZeroPad2d((1, 0, 1, 0)),
-            nn.Conv2d(128, output_nc, 4, padding=1)
+            nn.Conv2d(ngf*2, out_channels, 4, padding=1),
         )
 
-    def forward(self, x, mask):
+    def forward(self, x):
         # U-Net generator with skip connections from encoder to decoder
         d1 = self.down1(x)
         d2 = self.down2(d1)
@@ -364,304 +369,176 @@ class NaiveMinimalUnet(nn.Module):
         d6 = self.down6(d5)
         d7 = self.down7(d6)
         d8 = self.down8(d7)
-        u1 = self.up1(d8, d7) # the connected features.
+        u1 = self.up1(d8, d7)
         u2 = self.up2(u1, d6)
         u3 = self.up3(u2, d5)
         u4 = self.up4(u3, d4)
-        u5 = self.up5(u4, d3) #
+        u5 = self.up5(u4, d3)
         u6 = self.up6(u5, d2)
         u7 = self.up7(u6, d1)
 
         return self.final(u7)
 
 
-class NaiveRASC(nn.Module):
-    def __init__(self, input_nc, output_nc, ngf=64,norm_layer=nn.BatchNorm2d, use_dropout=False,
-                 is_attention_layer=False,attention_model=RASC,use_inner_attention=False,learning_model=BasicLearningBlockLite):
-        super(NaiveRASC, self).__init__()
+def weights_init(init_type='gaussian'):
+    def init_fun(m):
+        classname = m.__class__.__name__
+        if (classname.find('Conv') == 0 or classname.find(
+                'Linear') == 0) and hasattr(m, 'weight'):
+            if init_type == 'gaussian':
+                nn.init.normal_(m.weight, 0.0, 0.02)
+            elif init_type == 'xavier':
+                nn.init.xavier_normal_(m.weight, gain=math.sqrt(2))
+            elif init_type == 'kaiming':
+                nn.init.kaiming_normal_(m.weight, a=0, mode='fan_in')
+            elif init_type == 'orthogonal':
+                nn.init.orthogonal_(m.weight, gain=math.sqrt(2))
+            elif init_type == 'default':
+                pass
+            else:
+                assert 0, "Unsupported initialization: {}".format(init_type)
+            if hasattr(m, 'bias') and m.bias is not None:
+                nn.init.constant_(m.bias, 0.0)
 
-        # construct unet structure
+class PartialCoXv(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1,
+                 padding=0, dilation=1, groups=1, bias=True):
+        super().__init__()
+        self.input_conv = nn.Conv2d(in_channels, out_channels, kernel_size,
+                                    stride, padding, dilation, groups, bias)
+        self.mask_conv = nn.Conv2d(in_channels, out_channels, kernel_size,
+                                   stride, padding, dilation, groups, False)
+        # self.input_conv.apply(weights_init('kaiming'))
 
-        self.dropout = 0.5 if use_dropout else 0
+        torch.nn.init.constant_(self.mask_conv.weight, 1.0)
 
-        self.down1 = UNetDown(input_nc, ngf, normalize=False) # 2
-        self.down2 = UNetDown(ngf, ngf*2) # 4
-        self.down3 = UNetDown(ngf*2, ngf*4) # 8
-        self.down4 = UNetDown(ngf*4, ngf*8, dropout=self.dropout) # 16
-        self.down5 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 32
-        self.down6 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 64
-        self.down7 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 128
-        self.down8 = UNetDown(ngf*8, ngf*8, normalize=False, dropout=self.dropout) #256
+        # mask is not updated
+        for param in self.mask_conv.parameters():
+            param.requires_grad = False
 
-        self.up1 = UNetUp(ngf*8, ngf*8, dropout=self.dropout) #128
-        self.up2 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #64
-        self.up3 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #32
-        self.up4 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #16
-        self.up5 = UNetUp(ngf*16, ngf*4) #8
-        self.up6 = UNetUp(ngf*8, ngf*2) #4
-        self.up7 = UNetUp(ngf*4, ngf) #2
+    def forward(self, input, mask):
+        # http://masc.cs.gmu.edu/wiki/partialcoXv
+        # C(X) = W^T * X + b, C(0) = b, D(M) = 1 * M + 0 = sum(M)
+        # W^T* (M .* X) / sum(M) + b = [C(M .* X) – C(0)] / D(M) + C(0)
+        output = self.input_conv(input * mask)
+        if self.input_conv.bias is not None:
+            output_bias = self.input_conv.bias.view(1, -1, 1, 1).expand_as(
+                output)
+        else:
+            output_bias = torch.zeros_like(output)
 
-        self.rasc5 = attention_model(ngf*8,learning_model=learning_model)
-        self.rasc6 = attention_model(ngf*4,learning_model=learning_model) 
-        self.rasc7 = attention_model(ngf*2,learning_model=learning_model)
+        with torch.no_grad():
+            output_mask = self.mask_conv(mask)
 
-        self.final = nn.Sequential(
-            nn.Upsample(scale_factor=2),
-            nn.ZeroPad2d((1, 0, 1, 0)),
-            nn.Conv2d(128, output_nc, 4, padding=1)
-        )
+        no_update_holes = output_mask == 0
+        mask_sum = output_mask.masked_fill_(no_update_holes, 1.0)
 
-    def forward(self, x, mask):
-        # U-Net generator with skip connections from encoder to decoder
-        d1 = self.down1(x)
-        d2 = self.down2(d1)
-        d3 = self.down3(d2)
-        d4 = self.down4(d3)
-        d5 = self.down5(d4)
-        d6 = self.down6(d5)
-        d7 = self.down7(d6)
-        d8 = self.down8(d7)
-        u1 = self.up1(d8, d7) # the connected features.
-        u2 = self.up2(u1, d6)
-        u3 = self.up3(u2, d5)
-        u4 = self.up4(u3, d4)
-        
-        u5 = self.up5(u4, d3) #
-        u5,m5 = self.rasc5(u5,mask) 
+        output_pre = (output - output_bias) / mask_sum + output_bias
+        output = output_pre.masked_fill_(no_update_holes, 0.0)
 
-        u6 = self.up6(u5, d2)
-        u6,m6 = self.rasc6(u6,mask) # 32*32
-        
-        u7 = self.up7(u6, d1)       # 64*64
-        u7,m7 = self.rasc7(u7,mask) # 128*128
+        new_mask = torch.ones_like(output)
+        new_mask = new_mask.masked_fill_(no_update_holes, 0.0)
 
-        return self.final(u7),m5,m6,m7
-
-
-class NaiveMultiURASC(nn.Module):
-    def __init__(self, input_nc, output_nc, ngf=64,norm_layer=nn.BatchNorm2d, use_dropout=False,
-                 is_attention_layer=False,attention_model=RASC,use_inner_attention=False,learning_model=BasicLearningBlockLite):
-        super(NaiveMultiURASC, self).__init__()
-
-        # construct unet structure
-
-        self.dropout = 0.5 if use_dropout else 0
-
-        self.down1 = UNetDown(input_nc, ngf, normalize=False) # 2
-        self.down2 = UNetDown(ngf, ngf*2) # 4
-        self.down3 = UNetDown(ngf*2, ngf*4) # 8
-        self.down4 = UNetDown(ngf*4, ngf*8, dropout=self.dropout) # 16
-        self.down5 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 32
-        self.down6 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 64
-        self.down7 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 128
-        self.down8 = UNetDown(ngf*8, ngf*8, normalize=False, dropout=self.dropout) #256
-
-        self.up1 = UNetUp(ngf*8, ngf*8, dropout=self.dropout) #128
-        self.up2 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #64
-        self.up3 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #32
-        self.up4 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #16
-        self.up5 = UNetUp(ngf*16, ngf*4) #8
-        self.up6 = UNetUp(ngf*8, ngf*2) #4
-        self.up7 = UNetUp(ngf*4, ngf) #2
-
-        self.rasc5 = attention_model(ngf*8,learning_model=learning_model)
-        self.rasc6 = attention_model(ngf*4,learning_model=learning_model) 
-        self.rasc7 = attention_model(ngf*2,learning_model=learning_model)
-
-        self.final = nn.Sequential(
-            nn.Upsample(scale_factor=2),
-            nn.ZeroPad2d((1, 0, 1, 0)),
-            nn.Conv2d(128, output_nc, 4, padding=1)
-        )
-
-    def forward(self, x, mask):
-        # U-Net generator with skip connections from encoder to decoder
-        d1 = self.down1(x)
-        d2 = self.down2(d1)
-        d3 = self.down3(d2)
-        d4 = self.down4(d3)
-        d5 = self.down5(d4)
-        d6 = self.down6(d5)
-        d7 = self.down7(d6)
-        d8 = self.down8(d7)
-        u1 = self.up1(d8, d7) # the connected features.
-        u2 = self.up2(u1, d6)
-        u3 = self.up3(u2, d5)
-        u4 = self.up4(u3, d4)
-        
-        u5 = self.up5(u4, d3) #
-        u5,m5 = self.rasc5(u5,mask) 
-
-        u6 = self.up6(u5, d2)
-        u6,m6 = self.rasc6(u6,mask) # 32*32
-        
-        u7 = self.up7(u6, d1)       # 64*64
-        u7,m7 = self.rasc7(u7,mask) # 128*128
-
-        return self.final(u7),m5,m6,m7
+        return output, new_mask
 
 
-class NaiveMultiURASCG(nn.Module):
-    def __init__(self, input_nc, output_nc, ngf=64,norm_layer=nn.BatchNorm2d, use_dropout=False,
-                 is_attention_layer=False,attention_model=RASC,use_inner_attention=False,learning_model=BasicLearningBlockLite):
-        super(NaiveMultiURASCG, self).__init__()
+class PCBActiv(nn.Module):
+    def __init__(self, in_ch, out_ch, bn=True, sample='none-3', activ='relu',
+                 conv_bias=False):
+        super().__init__()
+        if sample == 'down-5':
+            self.conv = PartialCoXv(in_ch, out_ch, 5, 2, 2, bias=conv_bias)
+        elif sample == 'down-7':
+            self.conv = PartialCoXv(in_ch, out_ch, 7, 2, 3, bias=conv_bias)
+        elif sample == 'down-3':
+            self.conv = PartialCoXv(in_ch, out_ch, 3, 2, 1, bias=conv_bias)
+        else:
+            self.conv = PartialCoXv(in_ch, out_ch, 3, 1, 1, bias=conv_bias)
 
-        # construct unet structure
+        if bn:
+            self.bn = nn.BatchNorm2d(out_ch)
+        if activ == 'relu':
+            self.activation = nn.ReLU()
+        elif activ == 'leaky':
+            self.activation = nn.LeakyReLU(negative_slope=0.2)
 
-        self.dropout = 0.5 if use_dropout else 0
+    def forward(self, input, input_mask):
+        h, h_mask = self.conv(input, input_mask)
+        if hasattr(self, 'bn'):
+            h = self.bn(h)
+        if hasattr(self, 'activation'):
+            h = self.activation(h)
+        return h, h_mask
 
-        self.down1 = UNetDown(input_nc, ngf, normalize=False) # 2
-        self.down2 = UNetDown(ngf, ngf*2) # 4
-        self.down3 = UNetDown(ngf*2, ngf*4) # 8
-        self.down4 = UNetDown(ngf*4, ngf*8, dropout=self.dropout) # 16
-        self.down5 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 32
-        self.down6 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 64
-        self.down7 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 128
-        self.down8 = UNetDown(ngf*8, ngf*8, normalize=False, dropout=self.dropout) #256
 
-        self.up1 = UNetUp(ngf*8, ngf*8, dropout=self.dropout) #128
-        self.up2 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #64
-        self.up3 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #32
-        self.up4 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #16
-        self.up5 = UNetUp(ngf*16, ngf*4) #8
-        self.up6 = UNetUp(ngf*8, ngf*2) #4
-        self.up7 = UNetUp(ngf*4, ngf) #2
+class PCoXvUNet(nn.Module):
+    def __init__(self, layer_size=7, input_channels=3, upsampling_mode='nearest'):
+        super().__init__()
+        self.freeze_enc_bn = False
+        self.upsampling_mode = upsampling_mode
+        self.layer_size = layer_size
+        self.enc_1 = PCBActiv(input_channels, 64, bn=False, sample='down-7')
+        self.enc_2 = PCBActiv(64, 128, sample='down-5')
+        self.enc_3 = PCBActiv(128, 256, sample='down-5')
+        self.enc_4 = PCBActiv(256, 512, sample='down-3')
+        for i in range(4, self.layer_size):
+            name = 'enc_{:d}'.format(i + 1)
+            setattr(self, name, PCBActiv(512, 512, sample='down-3'))
 
-        self.rasc5 = attention_model(ngf*8,learning_model=learning_model)
-        self.rasc6 = attention_model(ngf*4,learning_model=learning_model) 
-        self.rasc7 = attention_model(ngf*2,learning_model=learning_model)
-
-        self.final = nn.Sequential(
-            nn.Upsample(scale_factor=2),
-            nn.ZeroPad2d((1, 0, 1, 0)),
-            nn.Conv2d(128, output_nc, 4, padding=1)
-        )
-
-    def forward(self, x, mask):
-        # U-Net generator with skip connections from encoder to decoder
-        d1 = self.down1(x)
-        d2 = self.down2(d1)
-        d3 = self.down3(d2)
-        d4 = self.down4(d3)
-        d5 = self.down5(d4)
-        d6 = self.down6(d5)
-        d7 = self.down7(d6)
-        d8 = self.down8(d7)
-        u1 = self.up1(d8, d7) # the connected features.
-        u2 = self.up2(u1, d6)
-        u3 = self.up3(u2, d5)
-        u4 = self.up4(u3, d4)
-        
-        u5 = self.up5(u4, d3) #
-        u5,m5 = self.rasc5(u5,mask,d8) 
-
-        u6 = self.up6(u5, d2)
-        u6,m6 = self.rasc6(u6,mask,d8) # 32*32
-        
-        u7 = self.up7(u6, d1)       # 64*64
-        u7,m7 = self.rasc7(u7,mask,d8) # 128*128
-
-        return self.final(u7),m5,m6,m7
-
-class NaiveMultiURASCX(nn.Module):
-    def __init__(self, input_nc, output_nc, ngf=64,norm_layer=nn.BatchNorm2d, use_dropout=False,
-                 is_attention_layer=False,attention_model=RASC,use_inner_attention=False,learning_model=BasicLearningBlockLite):
-        super(NaiveMultiURASCX, self).__init__()
-
-        # construct unet structure
-
-        self.dropout = 0.5 if use_dropout else 0
-
-        self.down1 = UNetDown(input_nc, ngf, normalize=False) # 2
-        self.down2 = UNetDown(ngf, ngf*2) # 4
-        self.down3 = UNetDown(ngf*2, ngf*4) # 8
-        self.down4 = UNetDown(ngf*4, ngf*8, dropout=self.dropout) # 16
-        self.down5 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 32
-        self.down6 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 64
-        self.down7 = UNetDown(ngf*8, ngf*8, dropout=self.dropout) # 128
-        self.down8 = UNetDown(ngf*8, ngf*8, normalize=False, dropout=self.dropout) #256
-
-        self.up1 = UNetUp(ngf*8, ngf*8, dropout=self.dropout) #128
-        self.up2 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #64
-        self.up3 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #32
-        self.up4 = UNetUp(ngf*16, ngf*8, dropout=self.dropout) #16
-        self.up5 = UNetUp(ngf*16, ngf*4) #8
-        self.up6 = UNetUp(ngf*8, ngf*2) #4
-        self.up7 = UNetUp(ngf*4, ngf) #2
-
-        self.rasc5 = attention_model(ngf*8,learning_model=learning_model)
-        self.rasc6 = attention_model(ngf*4,learning_model=learning_model) 
-        self.rasc7 = attention_model(ngf*2,learning_model=learning_model)
-
-        self.final = nn.Sequential(
-            nn.Upsample(scale_factor=2),
-            nn.ZeroPad2d((1, 0, 1, 0)),
-            nn.Conv2d(128, output_nc, 4, padding=1)
-        )
-
-    def forward(self, x, mask):
-        # U-Net generator with skip connections from encoder to decoder
-        d1 = self.down1(x)
-        d2 = self.down2(d1)
-        d3 = self.down3(d2)
-        d4 = self.down4(d3)
-        d5 = self.down5(d4)
-        d6 = self.down6(d5)
-        d7 = self.down7(d6)
-        d8 = self.down8(d7)
-        u1 = self.up1(d8, d7) # the connected features.
-        u2 = self.up2(u1, d6)
-        u3 = self.up3(u2, d5)
-        u4 = self.up4(u3, d4)
-        
-        u5 = self.up5(u4, d3) #
-        u5,m5 = self.rasc5(u5,mask) 
-
-        u6 = self.up6(u5, d2)
-        u6,m6 = self.rasc6(u6,mask) # 32*32
-        
-        u7 = self.up7(u6, d1)       # 64*64
-        u7,m7 = self.rasc7(u7,mask) # 128*128
-
-        mx = F.interpolate(m7,scale_factor=2,mode='bilinear',align_corners=True)
-
-        output = mx * self.final(u7) + (1-mx) * x
-
-        return output,m5,m6,m7
-
-class NaiveUnetGenerator(nn.Module):
-    """docstring for NaiveUnetGenerator"""
-    def __init__(self, input_nc, output_nc, num_downs=8, ngf=64,norm_layer=nn.BatchNorm2d, use_dropout=False,
-                 is_attention_layer=False,attention_model=RASC,use_inner_attention=False,basicblock=NaiveMinimalUnet,learning_model=BasicLearningBlockLite,final_layer=False,outputmask=False):
-        super(NaiveUnetGenerator, self).__init__()
-        
-        self.need_mask = ( (not input_nc == output_nc) and input_nc == 4 )
-        
-        self.model = basicblock(input_nc,output_nc,ngf=64,use_dropout=use_dropout,attention_model=attention_model,learning_model=learning_model)
-
-        self.final_layer = final_layer
-        self.outputmask = outputmask
-
+        for i in range(4, self.layer_size):
+            name = 'dec_{:d}'.format(i + 1)
+            setattr(self, name, PCBActiv(512 + 512, 512, activ='leaky'))
+        self.dec_4 = PCBActiv(512 + 256, 256, activ='leaky')
+        self.dec_3 = PCBActiv(256 + 128, 128, activ='leaky')
+        self.dec_2 = PCBActiv(128 + 64, 64, activ='leaky')
+        self.dec_1 = PCBActiv(64 + input_channels, input_channels,
+                              bn=False, activ=None, conv_bias=True)
 
     def forward(self, input):
-        if self.need_mask:
-            return torch.tanh(self.model(input,input[:,3:4,:,:]))
-        else:
-            output = self.model(input[:,0:3,:,:],input[:,3:4,:,:])
-            if self.outputmask and self.final_layer:
-                return (torch.tanh(output[0]),output[1])
-            elif self.final_layer:
-                return torch.tanh(output)
-            else:
-                return output
+        input_mask = 1 - input[:, 3:4, :, :].repeat(1,3,1,1)
+        input = input[:,0:3,:,:]
 
-    def freeze_weighting_of_rasc(self):
-        for p in self.model.rasc5.mask_attention.parameters():
-            p.requires_grad = False
-        for p in self.model.rasc6.mask_attention.parameters():
-            p.requires_grad = False
-        for p in self.model.rasc7.mask_attention.parameters():
-            p.requires_grad = False
-                 
-        
-        
+        h_dict = {}  # for the output of enc_N
+        h_mask_dict = {}  # for the output of enc_N
+
+        h_dict['h_0'], h_mask_dict['h_0'] = input, input_mask
+
+        h_key_prev = 'h_0'
+        for i in range(1, self.layer_size + 1):
+            l_key = 'enc_{:d}'.format(i)
+            h_key = 'h_{:d}'.format(i)
+            h_dict[h_key], h_mask_dict[h_key] = getattr(self, l_key)(
+                h_dict[h_key_prev], h_mask_dict[h_key_prev])
+            h_key_prev = h_key
+
+        h_key = 'h_{:d}'.format(self.layer_size)
+        h, h_mask = h_dict[h_key], h_mask_dict[h_key]
+
+        # concat upsampled output of h_enc_N-1 and dec_N+1, then do dec_N
+        # (exception)
+        #                            input         dec_2            dec_1
+        #                            h_enc_7       h_enc_8          dec_8
+
+        for i in range(self.layer_size, 0, -1):
+            enc_h_key = 'h_{:d}'.format(i - 1)
+            dec_l_key = 'dec_{:d}'.format(i)
+
+            h = F.interpolate(h, scale_factor=2, mode=self.upsampling_mode)
+            h_mask = F.interpolate(
+                h_mask, scale_factor=2, mode='nearest')
+
+            h = torch.cat([h, h_dict[enc_h_key]], dim=1)
+            h_mask = torch.cat([h_mask, h_mask_dict[enc_h_key]], dim=1)
+            h, h_mask = getattr(self, dec_l_key)(h, h_mask)
+
+        return h
+
+    def train(self, mode=True):
+        """
+        Override the default train() to freeze the BN parameters
+        """
+        super().train(mode)
+        if self.freeze_enc_bn:
+            for name, module in self.named_modules():
+                if isinstance(module, nn.BatchNorm2d) and 'enc' in name:
+                    module.eval()
