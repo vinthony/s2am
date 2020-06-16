@@ -16,7 +16,7 @@ from scripts.models.unet import *
 # radhn with unet 
 
 __all__ = [
-'unet','rascv1','rascv2',
+'unet','s2asc','s2ad',
 'senet','cbam',
 'urasc','maskedurasc','maskedurascgan','uno',
 'naiveuno','naivemultimaskedurasc']
