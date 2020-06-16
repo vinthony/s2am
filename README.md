@@ -4,7 +4,7 @@
 This repo contains the PyTorch implement of the following paper:
 
 &nbsp;&nbsp;&nbsp;&nbsp;[Improving the Harmony of the Composite Image by Spatial-Separated Attention Module](https://arxiv.org/abs/1907.06406)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[Xiaodong Cun](https://vinthony.github.io/academicpages.github.io/) and [Chi-Man Pun](http://www.cis.umac.mo/~cmpun/)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[_Xiaodong Cun_](https://vinthony.github.io/academicpages.github.io/) and [_Chi-Man Pun_](http://www.cis.umac.mo/~cmpun/)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;University of Macau<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Trans. on Image Processing, vol. 29, pp. 4759-4771, 2020.
 
