@@ -1,5 +1,5 @@
 # Spatial-Separated Attention Module (S²AM)
-[Arxiv](https://arxiv.org/abs/1907.06406) | [Project](https://vinthony.github.io/academicpages.github.io/projects/rasc.html) | [Dataset](TBD)
+[Arxiv](https://arxiv.org/abs/1907.06406) | [Demo](https://colab.research.google.com/drive/1UTjyi0J1F2mjc9rf9ZbFUOL2_kkZmdlQ?usp=sharing)
 
 This repo contains the PyTorch implement of the following paper:
 
@@ -10,21 +10,12 @@ This repo contains the PyTorch implement of the following paper:
 
 > This repo. is still work-in-progress. More details of the pre-trained models, training details and the datasets will be released in the future.
 
-> if you want to evalute our method on image harmonization dataset, please use the dataset from [this repo](https://github.com/bcmi/Image_Harmonization_Datasets).
+> if you want to evalute our method on image harmonization dataset, please refer [this repo](https://github.com/bcmi/Image_Harmonization_Datasets).
 
-## **Citation**
+## News
 
-If you find our work useful in your research, please consider citing:
-```
-@misc{cun2019improving,
-    title={Improving the Harmony of the Composite Image by Spatial-Separated Attention Module},
-    author={Xiaodong Cun and Chi-Man Pun},
-    year={2019},
-    eprint={1907.06406},
-    archivePrefix={arXiv},
-    primaryClass={cs.CV}
-}
-```
+- 2020-06-16 Pretrained model(S²AD) and online demo release.
+
 
 ## Abstract
 
@@ -80,15 +71,24 @@ run the watching commond as :
 ```
 tensorboard --logdir ./checkpoint
 ```
-## Demo
-```
-# download the pretrain models
-TBD
+## Demo 
 
-# create the jupyter lab server 
-jupyter lab
-```
-run the nootbook in `notebook/visualize.ipynb` and `notebook/evaluation.ipynb`
+#### Local machine.
+
+1. clone this repo.
+
+2. download the pretrain models from [google drive](https://drive.google.com/file/d/1bm1ZdZ4xmV9fKCQBDsulvYwrxPAidZ3T/view?usp=sharing)
+
+3. download some sample validation dataset from [google drive](https://drive.google.com/file/d/1qTVN-uem-MOYaTL-JaBxGbrqDniyLWQH/view?usp=sharing)
+
+4. configure the path to the dataset and pretrained model in `visualize.ipynb`
+
+5. run the notebook 
+
+#### Online demo
+
+Just visit our [google colab notebook](https://colab.research.google.com/drive/1UTjyi0J1F2mjc9rf9ZbFUOL2_kkZmdlQ?usp=sharing).
+
 
 ## The Application of Spatial-Separated Attention Module (S²AM) w/o mask
 
@@ -109,4 +109,19 @@ By regard a region as mask, Our method can use to remove the visible wartmark fr
 ![1582](https://user-images.githubusercontent.com/4397546/61209290-e80b5580-a72b-11e9-862a-24f71217b43d.png)
 ![1654](https://user-images.githubusercontent.com/4397546/61209291-e8a3ec00-a72b-11e9-8372-ed45e26d18e4.png)
 ![1728](https://user-images.githubusercontent.com/4397546/61209292-e8a3ec00-a72b-11e9-875b-ed7bf9027af9.png)
+
+
+## **Citation**
+
+If you find our work useful in your research, please consider citing:
+```
+@misc{cun2019improving,
+    title={Improving the Harmony of the Composite Image by Spatial-Separated Attention Module},
+    author={Xiaodong Cun and Chi-Man Pun},
+    year={2019},
+    eprint={1907.06406},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+```
 
