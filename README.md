@@ -14,8 +14,9 @@ This repo contains the PyTorch implement of the following paper:
 
 ## News
 
-- 2020-06-16 Pretrained model(S²AD) and online demo release.
-
+- 2020-12-18 The pretrained model on [iHarmony5 dataset](https://github.com/bcmi/Image_Harmonization_Datasets) are released.
+- 2020-12-18 SCOCO and SAdobe5K are released.
+- 2020-06-16 Pretrained model(S²AD) and online demo are released.
 
 ## Abstract
 
@@ -39,14 +40,10 @@ pip install -r requirements.txt
 ```
 
 ## Datasets
-We train the network under the synthesized datasets.<br>
-[SCOCO dataset(5G)](https://uofmacau-my.sharepoint.com/:u:/g/personal/yb87432_umac_mo/EZ4-Qpk-iHFLrTfZKIzAivoBn_Jm8mMkZ6EiqAsz4M0Uhg?e=uqShf3) contains `40k` images for training and `1.7k` images for testing.<br>
-`S-Adobe5k` dataset contains `32k` images form training and `2k` images for testing. <br>
-The following command will automatically download the dataset and unzip the synthesized dataset to the cooresponding dataset folders.
+We train the network under two different synthesized datasets.<br>
+* [SCOCO dataset(~5G)](https://uofmacau-my.sharepoint.com/:f:/g/personal/yb87432_umac_mo/EpemCJwfnhpIoDNAMfiegqIB0RXkdKH9Z2WibJJ4s27PbA?e=qPNzpI) contains `40k` images for training and `1.7k` images for testing.<br>
+* [S-Adobe5k(~25G in tiff format)](https://uofmacau-my.sharepoint.com/:f:/g/personal/yb87432_umac_mo/EpemCJwfnhpIoDNAMfiegqIB0RXkdKH9Z2WibJJ4s27PbA?e=qPNzpI) dataset contains `32k` images form training and `2k` images for testing. <br>
 
-```
-TBD
-```
 
 ## Train
 
@@ -62,6 +59,9 @@ chmod +x ./example/train_harmorization_s2asc.sh && ./example/train_harmorization
 # train the image harmonization w/o mask task from our paper.
 chmod +x ./example/train_harmorization_wo_mask.sh && ./example/train_harmorization_wo_mask.sh
 ```
+
+> you may also try our new code framework to train s2am.
+> please refer to [this link](https://github.com/vinthony/deep-blind-watermark-removal/blob/e75983417fee2f5a9276ccff05db63f2ece42cea/examples/evaluate.sh#L36).
 
 ## Visualization
 
@@ -90,6 +90,18 @@ tensorboard --logdir ./checkpoint
 Just visit our [google colab notebook](https://colab.research.google.com/drive/1UTjyi0J1F2mjc9rf9ZbFUOL2_kkZmdlQ?usp=sharing).
 
 
+## The pretrained model and results on iHarmony5 Dataset.
+
+We report the MAE and PSNR as shown in the original iHarmony5 paper. The pretrained model can be downloaded from [here](https://uofmacau-my.sharepoint.com/:f:/g/personal/yb87432_umac_mo/EpemCJwfnhpIoDNAMfiegqIB0RXkdKH9Z2WibJJ4s27PbA?e=qPNzpI).
+
+| dataset\method | PSNR | MAE | PSNR | MAE |
+| -- | -- | -- | -- | -- |
+| (residual output ?)   <td colspan=2> w/o global skip-connection   <td colspan=2>   w global skip-connection 
+| HCOCO | 37.33 | 25.59  | 37.25 | 26.22 |
+| HAdobe5K | 34.33 | 47.49 | 34.32 |  51.66 | 
+| HFlickr | 30.71| 112.92 | 31.02 | 106.21 |
+| HDay2night  | 33.63 | 70.03 |34.28 | 66.31  |
+
 ## The Application of Spatial-Separated Attention Module (S²AM) w/o mask
 
 #### Image Classification
@@ -103,7 +115,9 @@ We evaluate our method with the baseline attention module: [CBAM](https://arxiv.
 | ResNet44 | 6.96% | 6.92% | **6.58%** |
 | ResNet56 | 6.47% | 6.43% | **6.41%** |
 
+
 #### Interactive Wartmark Removal from a region.
+
 By regard a region as mask, Our method can use to remove the visible wartmark from the image. We generate the datasets from VOC as image and 100 famous logo as watermark region. The network trains on 70 of them and testing on the rest of them, here are some random results:
 ![1511](https://user-images.githubusercontent.com/4397546/61209289-e80b5580-a72b-11e9-9608-6da743935cb0.png)
 ![1582](https://user-images.githubusercontent.com/4397546/61209290-e80b5580-a72b-11e9-862a-24f71217b43d.png)
