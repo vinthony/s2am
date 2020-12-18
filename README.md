@@ -96,7 +96,7 @@ We report the MAE and PSNR as shown in the original iHarmony5 paper. The pretrai
 
 | dataset\method | PSNR | MAE | PSNR | MAE |
 | -- | -- | -- | -- | -- |
-| (residual output ?)   <td colspan=2> w/o global skip-connection   <td colspan=2>   w global skip-connection 
+| (residual output ?)  <td colspan=2> w/o global skip-connection   <td colspan=2>   w global skip-connection 
 | HCOCO | 37.33 | 25.59  | 37.25 | 26.22 |
 | HAdobe5K | 34.33 | 47.49 | 34.32 |  51.66 | 
 | HFlickr | 30.71| 112.92 | 31.02 | 106.21 |
