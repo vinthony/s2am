@@ -8,10 +8,6 @@ This repo contains the PyTorch implement of the following paper:
 &nbsp;&nbsp;&nbsp;&nbsp;University of Macau<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Trans. on Image Processing, vol. 29, pp. 4759-4771, 2020.
 
-> This repo. is still work-in-progress. More details of the pre-trained models, training details and the datasets will be released in the future.
-
-> if you want to evalute our method on image harmonization dataset, please refer [this repo](https://github.com/bcmi/Image_Harmonization_Datasets).
-
 ## News
 
 - 2020-12-18 The pretrained model on [iHarmony5 dataset](https://github.com/bcmi/Image_Harmonization_Datasets) are released.
