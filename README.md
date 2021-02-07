@@ -89,16 +89,55 @@ Just visit our [google colab notebook](https://colab.research.google.com/drive/1
 ## The pretrained model and results on iHarmony5 Dataset.
 
 We report the MAE and PSNR as shown in the original iHarmony5 paper. The pretrained model can be downloaded from [here](https://uofmacau-my.sharepoint.com/:f:/g/personal/yb87432_umac_mo/EpemCJwfnhpIoDNAMfiegqIB0RXkdKH9Z2WibJJ4s27PbA?e=qPNzpI).
-These results are trained and evaluated using the newer version of our code framework with nothing changes to the algorithm(please refer to our new work [here](https://github.com/vinthony/deep-blind-watermark-removal/blob/e75983417fee2f5a9276ccff05db63f2ece42cea/examples/evaluate.sh#L36)). All the results are been evaluated using a jupyter notebook in `eval_s2am_iharmony4.ipynb`, which is modified from the repo of [iharmony4/evaluate.py](https://github.com/bcmi/Image_Harmonization_Datasets/blob/master/evaluation.py)
+These results are trained and evaluated using the newer version of our code framework with nothing changes to the algorithm(please refer to our new work [here](https://github.com/vinthony/deep-blind-watermark-removal/blob/e75983417fee2f5a9276ccff05db63f2ece42cea/examples/evaluate.sh#L36)). All the results have been evaluated using a jupyter notebook in `eval_s2am_iharmony4.ipynb`, which is modified from the [evaluation code](https://github.com/bcmi/Image_Harmonization_Datasets/blob/master/evaluation.py) in DoveNet(CVPR 2020).
 
+<table>
+   <tr>
+     <td></td>
+     <td colspan="2">w/o global skip-connection </td>
+     <td colspan="2">w global skip-connection </td>
+  </tr>
+  <tr>
+     <td>dataset\method</td>
+     <td>PSNR↑</td>
+     <td>MAE↓</td>
+     <td>PSNR↑</rd>
+     <td>MAE↓</td>
+  </tr>
+  <tr>
+    <td>HCOCO</td>
+     <td>37.33</td>
+     <td>25.59</td>
+     <td>37.25</rd>
+     <td>26.22</td>
+  </tr>
+  
+  <tr>
+    <td>HAdobe5K</td>
+     <td>34.33</td>
+     <td>47.49</td>
+     <td>34.32</rd>
+     <td>51.66</td>
+  </tr>
+  
+  <tr>
+    <td>HFlickr</td>
+     <td>30.71</td>
+     <td>112.92</td>
+     <td>31.02</rd>
+     <td>106.21</td>
+  </tr>
+  
+  <tr>
+    <td>HDay2night</td>
+     <td>33.63</td>
+     <td>70.03</td>
+     <td>34.28</rd>
+     <td>66.31</td>
+  </tr>
+  
+</table>
 
-| dataset\method | PSNR | MAE | PSNR | MAE |
-| -- | -- | -- | -- | -- |
-| (residual output ?)  <td colspan=2> w/o global skip-connection   <td colspan=2>   w global skip-connection 
-| HCOCO | 37.33 | 25.59  | 37.25 | 26.22 |
-| HAdobe5K | 34.33 | 47.49 | 34.32 |  51.66 | 
-| HFlickr | 30.71| 112.92 | 31.02 | 106.21 |
-| HDay2night  | 33.63 | 70.03 |34.28 | 66.31  |
 
 ## The Application of Spatial-Separated Attention Module (S²AM) w/o mask
 
