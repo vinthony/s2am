@@ -89,7 +89,7 @@ Just visit our [google colab notebook](https://colab.research.google.com/drive/1
 ## The pretrained model and results on iHarmony5 Dataset.
 
 We report the MAE and PSNR as shown in the original iHarmony5 paper. The pretrained model can be downloaded from [here](https://uofmacau-my.sharepoint.com/:f:/g/personal/yb87432_umac_mo/EpemCJwfnhpIoDNAMfiegqIB0RXkdKH9Z2WibJJ4s27PbA?e=qPNzpI).
-These results are trained and evaluated using the newer version of our code framework with nothing changes to the algorithm(please refer to our new work [here](https://github.com/vinthony/deep-blind-watermark-removal/blob/e75983417fee2f5a9276ccff05db63f2ece42cea/examples/evaluate.sh#L36)). All the results have been evaluated using a jupyter notebook in `eval_s2am_iharmony4.ipynb`, which is modified from the [evaluation code](https://github.com/bcmi/Image_Harmonization_Datasets/blob/master/evaluation.py) in DoveNet(CVPR 2020).
+These results are trained and evaluated using the newer version of our code framework with nothing changes to the algorithm(please refer to our new work [here](https://github.com/vinthony/deep-blind-watermark-removal/blob/e75983417fee2f5a9276ccff05db63f2ece42cea/examples/evaluate.sh#L36)). All the results have been evaluated using a jupyter notebook in `eval_s2am_iharmony4.ipynb`, which is modified from the [evaluation code](https://github.com/bcmi/Image_Harmonization_Datasets/blob/master/evaluation.py) in DoveNet(CVPR 2020). Notice that the original DoveNet using the total dataset for training, while we train each dataset individually.
 
 <table>
    <tr>
